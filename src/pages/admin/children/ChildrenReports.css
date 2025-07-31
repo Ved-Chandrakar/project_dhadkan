@@ -1,8 +1,4 @@
-/* Children Reports Page Styles */
-.children-reports {
-  min-height: 100vh;
-  background-color: #f8f9fa;
-}
+/* This CSS file is no longer used - styles have been moved to inline styles in the component */
 
 .page-header {
   background: linear-gradient(135deg, #FF9933 0%, #e88822 100%);
