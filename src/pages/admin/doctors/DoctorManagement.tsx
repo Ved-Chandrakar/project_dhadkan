@@ -787,11 +787,12 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
     try {
       setIsSubmitting(true)
       
+      // Use different endpoints for add and update operations
       const url = selectedDoctor 
         ? `${serverUrl}doctor_management.php?action=update`
-        : `${serverUrl}doctor_management.php?action=add`
+        : `${serverUrl}add_doctor.php`
 
-      const method = selectedDoctor ? 'PUT' : 'POST'
+      const method = 'POST'
       const payload = selectedDoctor 
         ? { ...formData, id: selectedDoctor.id }
         : formData
@@ -810,6 +811,17 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
         alert(selectedDoctor ? 'चिकित्सक की जानकारी सफलतापूर्वक अपडेट की गई!' : 'नया चिकित्सक सफलतापूर्वक जोड़ा गया!')
         setShowAddForm(false)
         setSelectedDoctor(null)
+        
+        // Reset form data
+        setFormData({
+          doctorName: '',
+          hospitalType: '',
+          hospitalname: '',
+          phoneNo: '',
+          experience: 0,
+          email: '',
+          password: ''
+        })
         
         // Refresh doctors list
         const fetchResponse = await fetch(`${serverUrl}doctor_management.php`)
@@ -1116,10 +1128,11 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
             </div>
             <div style={styles.modalBody}>
               <form style={styles.form} onSubmit={(e) => e.preventDefault()}>
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label htmlFor="doctorName">चिकित्सक का नाम *</label>
+                <div style={styles.formGrid}>
+                  <div style={styles.formGroup}>
+                    <label style={styles.formLabel} htmlFor="doctorName">चिकित्सक का नाम *</label>
                     <input
+                      style={styles.formInput}
                       type="text"
                       id="doctorName"
                       name="doctorName"
@@ -1127,12 +1140,18 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                       onChange={handleInputChange}
                       placeholder="डॉ. राम कुमार"
                       required
+                      onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#e9ecef'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="email">ईमेल पता *</label>
+                  <div style={styles.formGroup}>
+                    <label style={styles.formLabel} htmlFor="email">ईमेल पता *</label>
                     <input
+                      style={styles.formInput}
                       type="email"
                       id="email"
                       name="email"
@@ -1140,12 +1159,18 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                       onChange={handleInputChange}
                       placeholder="doctor@email.com"
                       required
+                      onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#e9ecef'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="phoneNo">फ़ोन नंबर *</label>
+                  <div style={styles.formGroup}>
+                    <label style={styles.formLabel} htmlFor="phoneNo">फ़ोन नंबर *</label>
                     <input
+                      style={styles.formInput}
                       type="tel"
                       id="phoneNo"
                       name="phoneNo"
@@ -1155,12 +1180,18 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                       maxLength={10}
                       pattern="[0-9]{10}"
                       required
+                      onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#e9ecef'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="experience">अनुभव (वर्षों में)</label>
+                  <div style={styles.formGroup}>
+                    <label style={styles.formLabel} htmlFor="experience">अनुभव (वर्षों में)</label>
                     <input
+                      style={styles.formInput}
                       type="number"
                       id="experience"
                       name="experience"
@@ -1169,16 +1200,27 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                       placeholder="5"
                       min="0"
                       max="50"
+                      onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#e9ecef'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     />
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="hospitalType">अस्पताल का प्रकार</label>
+                  <div style={styles.formGroup}>
+                    <label style={styles.formLabel} htmlFor="hospitalType">अस्पताल का प्रकार</label>
                     <select
+                      style={styles.formInput}
                       id="hospitalType"
                       name="hospitalType"
                       value={formData.hospitalType}
                       onChange={handleInputChange}
+                      onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#e9ecef'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     >
                       <option value="">प्रकार चुनें</option>
                       <option value="सरकारी">सरकारी अस्पताल</option>
@@ -1189,23 +1231,30 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label htmlFor="hospitalname">अस्पताल का नाम</label>
+                  <div style={styles.formGroup}>
+                    <label style={styles.formLabel} htmlFor="hospitalname">अस्पताल का नाम</label>
                     <input
+                      style={styles.formInput}
                       type="text"
                       id="hospitalname"
                       name="hospitalname"
                       value={formData.hospitalname}
                       onChange={handleInputChange}
                       placeholder="सरकारी अस्पताल, नई दिल्ली"
+                      onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#e9ecef'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     />
                   </div>
 
-                  <div className="form-group full-width">
-                    <label htmlFor="password">
+                  <div style={{...styles.formGroup, ...styles.formGroupFullWidth}}>
+                    <label style={styles.formLabel} htmlFor="password">
                       {selectedDoctor ? 'नया पासवर्ड (खाली छोड़ें यदि बदलना नहीं है)' : 'पासवर्ड *'}
                     </label>
                     <input
+                      style={styles.formInput}
                       type="password"
                       id="password"
                       name="password"
@@ -1214,8 +1263,13 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                       placeholder="पासवर्ड दर्ज करें"
                       minLength={6}
                       required={!selectedDoctor}
+                      onFocus={(e) => Object.assign(e.target.style, styles.formInputFocus)}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#e9ecef'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     />
-                    <small className="form-hint">
+                    <small style={styles.formHint}>
                       {selectedDoctor ? 
                         'पासवर्ड बदलने के लिए ही भरें, अन्यथा खाली छोड़ दें' : 
                         'कम से कम 6 अक्षर का पासवर्ड दर्ज करें'
@@ -1224,20 +1278,46 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                   </div>
                 </div>
 
-                <div className="form-footer">
+                <div style={styles.formFooter}>
                   <button 
+                    style={styles.btnSecondary}
                     type="button" 
-                    className="btn-secondary" 
                     onClick={() => setShowAddForm(false)}
                     disabled={isSubmitting}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#FF9933'
+                      e.currentTarget.style.color = 'white'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'white'
+                      e.currentTarget.style.color = '#FF9933'
+                    }}
                   >
                     रद्द करें
                   </button>
                   <button 
+                    style={{
+                      ...styles.btnPrimary,
+                      opacity: isSubmitting ? 0.7 : 1,
+                      cursor: isSubmitting ? 'not-allowed' : 'pointer'
+                    }}
                     type="button" 
-                    className="btn-primary" 
                     onClick={handleSubmitForm}
                     disabled={isSubmitting}
+                    onMouseEnter={(e) => {
+                      if (!isSubmitting) {
+                        e.currentTarget.style.background = 'linear-gradient(45deg, #e88822, #d77711)'
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 153, 51, 0.3)'
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!isSubmitting) {
+                        e.currentTarget.style.background = 'linear-gradient(45deg, #FF9933, #e88822)'
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(255, 153, 51, 0.2)'
+                      }
+                    }}
                   >
                     {isSubmitting ? 'सुरक्षित कर रहे हैं...' : (selectedDoctor ? 'अपडेट करें' : 'जोड़ें')}
                   </button>
