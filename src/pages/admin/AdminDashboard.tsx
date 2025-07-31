@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { User } from '../../App'
 import DoctorManagement from './doctors/DoctorManagement'
 import ChildrenReports from './children/ChildrenReports'
 import './AdminDashboard.css'
+import serverUrl from '../server'
 
 interface AdminDashboardProps {
   user: User
@@ -18,8 +19,15 @@ interface MenuItem {
 interface DashboardStats {
   totalChildrenScreened: number
   positiveCases: number
+  healthyCases: number
   todayScreenings: number
   totalDoctors: number
+  activeDoctors: number
+  thisWeekScreenings: number
+  thisMonthScreenings: number
+  healthyPercentage: number
+  suspiciousPercentage: number
+  weeklyGrowth: number
 }
 
 interface Child {
@@ -35,6 +43,22 @@ interface Child {
 
 const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState('dashboard')
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    totalChildrenScreened: 0,
+    positiveCases: 0,
+    healthyCases: 0,
+    todayScreenings: 0,
+    totalDoctors: 0,
+    activeDoctors: 0,
+    thisWeekScreenings: 0,
+    thisMonthScreenings: 0,
+    healthyPercentage: 0,
+    suspiciousPercentage: 0,
+    weeklyGrowth: 0
+  })
+  const [children, setChildren] = useState<Child[]>([])
 
   const menuItems: MenuItem[] = [
     { id: 'dashboard', label: 'डैशबोर्ड', icon: '📊' },
@@ -42,135 +66,260 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
     { id: 'childReports', label: 'बच्चों की रिपोर्ट', icon: '👶' }
   ]
 
-  // Mock data - replace with actual API calls
-  const dashboardStats: DashboardStats = {
-    totalChildrenScreened: 2450,
-    positiveCases: 185,
-    todayScreenings: 45,
-    totalDoctors: 12
+  // Function to fetch dashboard data
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+      
+      const response = await fetch(`${serverUrl}admin_dashboard.php`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        mode: 'cors',
+        credentials: 'omit'
+      })
+      
+      if (!response.ok) {
+        throw new Error(`Server responded with status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      
+      if (result.success && result.data) {
+        const data = result.data
+        
+        setDashboardStats({
+          totalChildrenScreened: data.totalChildrenScreened || 0,
+          positiveCases: data.positiveCases || 0,
+          healthyCases: data.healthyCases || 0,
+          todayScreenings: data.todayScreenings || 0,
+          totalDoctors: data.totalDoctors || 0,
+          activeDoctors: data.activeDoctors || 0,
+          thisWeekScreenings: data.thisWeekScreenings || 0,
+          thisMonthScreenings: data.thisMonthScreenings || 0,
+          healthyPercentage: data.healthyPercentage || 0,
+          suspiciousPercentage: data.suspiciousPercentage || 0,
+          weeklyGrowth: data.weeklyGrowth || 0
+        })
+        
+        const recentChildren = data.recentChildren || []
+        setChildren(recentChildren.map((child: any) => ({
+          id: child.id,
+          name: child.name,
+          age: child.age,
+          parentName: child.parentName,
+          phone: child.phone,
+          screeningDate: child.screeningDate,
+          status: child.status,
+          doctorName: child.doctorName
+        })))
+        
+      } else {
+        setError(result.message || 'API से डेटा लोड करने में त्रुटि')
+        console.error('API Error:', result.message)
+      }
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred'
+      setError(`नेटवर्क त्रुटि: ${errorMessage}`)
+      console.error('Error fetching dashboard data:', error)
+      
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const mockChildren: Child[] = [
-    {
-      id: 1,
-      name: 'राहुल कुमार',
-      age: 8,
-      parentName: 'सुनील कुमार',
-      phone: '9876543210',
-      screeningDate: '2025-01-29',
-      status: 'स्वस्थ',
-      doctorName: 'डॉ. प्रिया शर्मा'
-    },
-    {
-      id: 2,
-      name: 'आरती देवी',
-      age: 6,
-      parentName: 'राज कुमार',
-      phone: '9876543211',
-      screeningDate: '2025-01-29',
-      status: 'असामान्य',
-      doctorName: 'डॉ. अमित वर्मा'
-    },
-    {
-      id: 3,
-      name: 'विकास शर्मा',
-      age: 7,
-      parentName: 'मोहन शर्मा',
-      phone: '9876543212',
-      screeningDate: '2025-01-28',
-      status: 'स्वस्थ',
-      doctorName: 'डॉ. सुनीता गुप्ता'
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const healthyChildren = children.filter(child => child.status === 'स्वस्थ').length
+  const unhealthyChildren = children.filter(child => child.status === 'असामान्य').length
+
+  // Function to refresh dashboard data
+  const refreshDashboard = () => {
+    fetchDashboardData()
+  }
+
+  const renderDashboard = () => {
+    if (isLoading) {
+      return (
+        <div className="loading-container">
+          <div className="loading-spinner">
+            <h3>डेटा लोड हो रहा है...</h3>
+            <p>कृपया प्रतीक्षा करें</p>
+          </div>
+        </div>
+      )
     }
-  ]
 
-  const healthyChildren = mockChildren.filter(child => child.status === 'स्वस्थ').length
-  const unhealthyChildren = mockChildren.filter(child => child.status === 'असामान्य').length
+    if (error && dashboardStats.totalChildrenScreened === 0) {
+      return (
+        <div className="error-container">
+          <div className="error-content">
+            <h3>❌ डेटा लोड नहीं हो सका</h3>
+            <p>{error}</p>
+            <button 
+              className="retry-btn"
+              onClick={refreshDashboard}
+            >
+              🔄 पुनः प्रयास करें
+            </button>
+          </div>
+        </div>
+      )
+    }
 
-  const renderDashboard = () => (
-    <div>
-      <div className="content-header">
-        <h3>डैशबोर्ड अवलोकन</h3>
-        <p>बच्चों की स्वास्थ्य जांच प्रणाली</p>
-      </div>
-      
-      <div className="stats-grid">
-        <div className="stat-card">
-          <h4>कुल जांच किए गए बच्चे</h4>
-          <p className="stat-number">{dashboardStats.totalChildrenScreened}</p>
-          {/* <span className="stat-icon">👶</span> */}
-        </div>
-        <div className="stat-card">
-          <h4>संदिग्ध मामले</h4>
-          <p className="stat-number">{dashboardStats.positiveCases}</p>
-          {/* <span className="stat-icon">⚠️</span> */}
-        </div>
-        <div className="stat-card">
-          <h4>आज की जांच</h4>
-          <p className="stat-number">{dashboardStats.todayScreenings}</p>
-          {/* <span className="stat-icon">📅</span> */}
-        </div>
-        <div className="stat-card">
-          <h4>कुल चिकित्सक</h4>
-          <p className="stat-number">{dashboardStats.totalDoctors}</p>
-          {/* <span className="stat-icon">👩‍⚕️</span> */}
-        </div>
-      </div>
-
-      <div className="overview-grid">
-        <div className="overview-card">
-          <h4>मामलों की तुलना</h4>
-          <div className="comparison-chart">
-            <div className="chart-container">
-              <div className="y-axis">
-                <div className="y-label">संदिग्ध मामले</div>
-                <div className="y-label">स्वस्थ मामले</div>
-              </div>
-              <div className="chart-bars">
-                <div className="bar-group">
-                  <div className="bar suspected" style={{width: `${(unhealthyChildren / Math.max(healthyChildren, unhealthyChildren)) * 100}%`}}>
-                    <span className="bar-value">{unhealthyChildren}</span>
-                  </div>
-                </div>
-                <div className="bar-group">
-                  <div className="bar healthy" style={{width: `${(healthyChildren / Math.max(healthyChildren, unhealthyChildren)) * 100}%`}}>
-                    <span className="bar-value">{healthyChildren}</span>
-                  </div>
-                </div>
-              </div>
+    return (
+      <div>
+        <div className="content-header">
+          <div className="header-left">
+            <h3>डैशबोर्ड अवलोकन</h3>
+            <p>बच्चों की स्वास्थ्य जांच प्रणाली</p>
+          </div>
+          <div className="header-right">
+            <button 
+              className="refresh-btn"
+              onClick={refreshDashboard}
+              disabled={isLoading}
+              title="डेटा रीफ्रेश करें"
+            >
+              {isLoading ? '🔄' : '🔄'} रीफ्रेश
+            </button>
+          </div>
+          {error && (
+            <div className="error-banner">
+              <span className="error-icon">⚠️</span>
+              <span className="error-message">{error}</span>
+              <span className="error-note">(डेटा लोड नहीं हो सका - कृपया रीफ्रेश करें)</span>
             </div>
-            <div className="chart-summary">
-              <div className="summary-item">
-                <span className="summary-color suspected"></span>
-                <span>संदिग्ध: {unhealthyChildren} ({Math.round((unhealthyChildren / mockChildren.length) * 100)}%)</span>
-              </div>
-              <div className="summary-item">
-                <span className="summary-color healthy"></span>
-                <span>स्वस्थ: {healthyChildren} ({Math.round((healthyChildren / mockChildren.length) * 100)}%)</span>
-              </div>
-            </div>
+          )}
+        </div>
+        
+        <div className="stats-grid">
+          <div className="stat-card">
+            <h4>कुल जांच किए गए बच्चे</h4>
+            <p className="stat-number">{dashboardStats.totalChildrenScreened}</p>
+            <small className="stat-subtitle">स्वस्थ: {dashboardStats.healthyCases} | संदिग्ध: {dashboardStats.positiveCases}</small>
+          </div>
+          <div className="stat-card">
+            <h4>संदिग्ध मामले</h4>
+            <p className="stat-number">{dashboardStats.positiveCases}</p>
+            <small className="stat-subtitle">{dashboardStats.suspiciousPercentage.toFixed(1)}% कुल जांच का</small>
+          </div>
+          <div className="stat-card">
+            <h4>आज की जांच</h4>
+            <p className="stat-number">{dashboardStats.todayScreenings}</p>
+            <small className="stat-subtitle">इस सप्ताह: {dashboardStats.thisWeekScreenings}</small>
+          </div>
+          <div className="stat-card">
+            <h4>कुल चिकित्सक</h4>
+            <p className="stat-number">{dashboardStats.totalDoctors}</p>
+            <small className="stat-subtitle">सक्रिय: {dashboardStats.activeDoctors}</small>
           </div>
         </div>
 
-        <div className="overview-card">
-          <h4>स्वास्थ्य सांख्यिकी</h4>
-          <div className="health-stats">
-            <div className="health-stat">
-              <span className="health-label">स्वस्थ बच्चे</span>
-              <span className="health-value healthy">{healthyChildren}</span>
-            </div>
-            <div className="health-stat">
-              <span className="health-label">असामान्य मामले</span>
-              <span className="health-value unhealthy">{unhealthyChildren}</span>
-            </div>
-            <div className="health-stat">
-              <span className="health-label">स्वस्थता दर</span>
-              <span className="health-value">{Math.round((healthyChildren / mockChildren.length) * 100)}%</span>
-            </div>
+        {/* Additional Stats Row */}
+        <div className="stats-grid secondary-stats">
+          <div className="stat-card">
+            <h4>इस महीने की जांच</h4>
+            <p className="stat-number">{dashboardStats.thisMonthScreenings}</p>
+            <small className="stat-subtitle">
+              {dashboardStats.weeklyGrowth >= 0 ? '📈' : '📉'} 
+              {Math.abs(dashboardStats.weeklyGrowth).toFixed(1)}% साप्ताहिक वृद्धि
+            </small>
+          </div>
+          <div className="stat-card">
+            <h4>स्वस्थता दर</h4>
+            <p className="stat-number">{dashboardStats.healthyPercentage.toFixed(1)}%</p>
+            <small className="stat-subtitle">स्वस्थ बच्चे: {dashboardStats.healthyCases}</small>
+          </div>
+          <div className="stat-card">
+            <h4>इस सप्ताह</h4>
+            <p className="stat-number">{dashboardStats.thisWeekScreenings}</p>
+            <small className="stat-subtitle">
+              {dashboardStats.weeklyGrowth >= 0 ? 'वृद्धि' : 'कमी'}: {Math.abs(dashboardStats.weeklyGrowth).toFixed(1)}%
+            </small>
+          </div>
+          <div className="stat-card">
+            <h4>औसत दैनिक जांच</h4>
+            <p className="stat-number">{Math.round(dashboardStats.thisWeekScreenings / 7)}</p>
+            <small className="stat-subtitle">पिछले 7 दिनों का औसत</small>
+          </div>
+        </div>
+
+        <div className="overview-grid">
+          <div className="overview-card">
+            <h4>मामलों की तुलना</h4>
+            {children.length > 0 ? (
+              <div className="comparison-chart">
+                <div className="chart-container">
+                  <div className="y-axis">
+                    <div className="y-label">संदिग्ध मामले</div>
+                    <div className="y-label">स्वस्थ मामले</div>
+                  </div>
+                  <div className="chart-bars">
+                    <div className="bar-group">
+                      <div className="bar suspected" style={{width: `${(unhealthyChildren / Math.max(healthyChildren, unhealthyChildren)) * 100}%`}}>
+                        <span className="bar-value">{unhealthyChildren}</span>
+                      </div>
+                    </div>
+                    <div className="bar-group">
+                      <div className="bar healthy" style={{width: `${(healthyChildren / Math.max(healthyChildren, unhealthyChildren)) * 100}%`}}>
+                        <span className="bar-value">{healthyChildren}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="chart-summary">
+                  <div className="summary-item">
+                    <span className="summary-color suspected"></span>
+                    <span>संदिग्ध: {unhealthyChildren} ({Math.round((unhealthyChildren / children.length) * 100)}%)</span>
+                  </div>
+                  <div className="summary-item">
+                    <span className="summary-color healthy"></span>
+                    <span>स्वस्थ: {healthyChildren} ({Math.round((healthyChildren / children.length) * 100)}%)</span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="no-data-message">
+                <p>📊 चार्ट डेटा उपलब्ध नहीं है</p>
+              </div>
+            )}
+          </div>
+
+          <div className="overview-card">
+            <h4>स्वास्थ्य सांख्यिकी</h4>
+            {children.length > 0 ? (
+              <div className="health-stats">
+                <div className="health-stat">
+                  <span className="health-label">स्वस्थ बच्चे</span>
+                  <span className="health-value healthy">{healthyChildren}</span>
+                </div>
+                <div className="health-stat">
+                  <span className="health-label">असामान्य मामले</span>
+                  <span className="health-value unhealthy">{unhealthyChildren}</span>
+                </div>
+                <div className="health-stat">
+                  <span className="health-label">स्वस्थता दर</span>
+                  <span className="health-value">{Math.round((healthyChildren / children.length) * 100)}%</span>
+                </div>
+              </div>
+            ) : (
+              <div className="no-data-message">
+                <p>📈 सांख्यिकी डेटा उपलब्ध नहीं है</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
-  )
+    )
+  }
 
   const renderContent = () => {
     switch (activeTab) {
@@ -227,11 +376,6 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
 
       {/* Main Content */}
       <div className="main-content">
-        {/* <header className="main-header">
-          <h1>प्रशासक डैशबोर्ड</h1>
-          <p>बच्चों की स्वास्थ्य जांच प्रणाली का प्रबंधन</p>
-        </header> */}
-
         <div className="content-area">
           {renderContent()}
         </div>

@@ -223,6 +223,23 @@
   color: #138808;
 }
 
+/* No Data Message */
+.no-data-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6c757d;
+}
+
+.no-data-message p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.no-data-message p:first-child {
+  font-weight: 600;
+  color: #495057;
+}
+
 .status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 20px;

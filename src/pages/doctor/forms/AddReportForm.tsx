@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { User } from '../../../App'
+import serverUrl from '../../server'
 import './AddReportForm.css'
 
 interface AddReportFormProps {
@@ -39,6 +40,21 @@ const AddReportForm = ({ user, onBack }: AddReportFormProps) => {
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  // Helper function to convert file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => {
+        const result = reader.result as string
+        // Remove the data:image/jpeg;base64, part and just return the base64 string
+        const base64 = result.split(',')[1]
+        resolve(base64)
+      }
+      reader.onerror = error => reject(error)
+    })
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -53,6 +69,29 @@ const AddReportForm = ({ user, onBack }: AddReportFormProps) => {
       ...prev,
       [fieldName]: file
     }))
+  }
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      gender: '',
+      fatherName: '',
+      mobileNo: '',
+      schoolName: '',
+      haveAadhar: '',
+      haveShramik: '',
+      aadharPhoto: null,
+      shramikPhoto: null,
+      heartStatus: '',
+      notes: ''
+    })
+    setCurrentStep(1)
+    
+    // Reset file input fields
+    const aadharInput = document.getElementById('aadharPhoto') as HTMLInputElement
+    const shramikInput = document.getElementById('shramikPhoto') as HTMLInputElement
+    if (aadharInput) aadharInput.value = ''
+    if (shramikInput) shramikInput.value = ''
   }
 
   const validateStep = (step: number): boolean => {
@@ -91,33 +130,93 @@ const AddReportForm = ({ user, onBack }: AddReportFormProps) => {
     setIsSubmitting(true)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Convert files to base64 if they exist
+      const aadharPhotoBase64 = formData.aadharPhoto ? await fileToBase64(formData.aadharPhoto) : null
+      const shramikPhotoBase64 = formData.shramikPhoto ? await fileToBase64(formData.shramikPhoto) : null
       
-      // Here you would make the actual API call
-      console.log('Form submitted:', formData)
+      // Create JSON payload
+      const jsonData = {
+        name: formData.name,
+        gender: formData.gender,
+        fatherName: formData.fatherName,
+        mobileNo: formData.mobileNo,
+        schoolName: formData.schoolName,
+        haveAadhar: formData.haveAadhar,
+        haveShramik: formData.haveShramik,
+        heartStatus: formData.heartStatus,
+        notes: formData.notes,
+        dr_id: user.id,
+        aadharPhoto: aadharPhotoBase64 ? {
+          data: aadharPhotoBase64,
+          name: formData.aadharPhoto?.name || '',
+          type: formData.aadharPhoto?.type || ''
+        } : null,
+        shramikPhoto: shramikPhotoBase64 ? {
+          data: shramikPhotoBase64,
+          name: formData.shramikPhoto?.name || '',
+          type: formData.shramikPhoto?.type || ''
+        } : null
+      }
+
+      const apiUrl = `${serverUrl}add_child_report.php`
+      console.log('Submitting to:', apiUrl)
+      console.log('JSON Data:', { ...jsonData, aadharPhoto: jsonData.aadharPhoto ? 'FILE_DATA' : null, shramikPhoto: jsonData.shramikPhoto ? 'FILE_DATA' : null })
       
-      alert('रिपोर्ट सफलतापूर्वक जमा हो गई!')
-      
-      // Reset form
-      setFormData({
-        name: '',
-        gender: '',
-        fatherName: '',
-        mobileNo: '',
-        schoolName: '',
-        haveAadhar: '',
-        haveShramik: '',
-        aadharPhoto: null,
-        shramikPhoto: null,
-        heartStatus: '',
-        notes: ''
+      // Submit to add_child_report.php
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(jsonData)
       })
-      setCurrentStep(1)
+      
+      // Check if response is ok and has content
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`)
+      }
+      
+      // Check if response has content
+      const responseText = await response.text()
+      if (!responseText.trim()) {
+        throw new Error('Server returned empty response')
+      }
+      
+      // Try to parse JSON
+      let result
+      try {
+        result = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error('Response text:', responseText)
+        const errorMessage = parseError instanceof Error ? parseError.message : 'Unknown parsing error'
+        throw new Error(`Invalid JSON response from server: ${errorMessage}`)
+      }
+      
+      if (result.success) {
+        alert(`रिपोर्ट सफलतापूर्वक जमा हो गई!\n\nबच्चे का नाम: ${result.data.child.name}\nजांच ID: ${result.data.child.id}`)
+        
+        // Reset form after successful submission
+        resetForm()
+        
+        // Go back to dashboard after successful submission
+        setTimeout(() => {
+          onBack()
+        }, 1500)
+        
+      } else {
+        throw new Error(result.message || 'फॉर्म जमा करने में त्रुटि हुई')
+      }
       
     } catch (error) {
       console.error('Error submitting form:', error)
-      alert('रिपोर्ट जमा करने में त्रुटि हुई। कृपया दोबारा कोशिश करें।')
+      let errorMessage = 'रिपोर्ट जमा करने में त्रुटि हुई। कृपया दोबारा कोशिश करें।'
+      
+      // Show specific error message if available
+      if (error instanceof Error) {
+        errorMessage = error.message
+      }
+      
+      alert(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
@@ -370,7 +469,12 @@ const AddReportForm = ({ user, onBack }: AddReportFormProps) => {
             {/* Navigation Buttons */}
             <div className="form-navigation">
               {currentStep > 1 && (
-                <button type="button" className="btn-secondary" onClick={prevStep}>
+                <button 
+                  type="button" 
+                  className="btn-secondary" 
+                  onClick={prevStep}
+                  disabled={isSubmitting}
+                >
                   ← पिछला
                 </button>
               )}
@@ -378,7 +482,12 @@ const AddReportForm = ({ user, onBack }: AddReportFormProps) => {
               <div className="nav-spacer"></div>
               
               {currentStep < 3 ? (
-                <button type="button" className="btn-primary" onClick={nextStep}>
+                <button 
+                  type="button" 
+                  className="btn-primary" 
+                  onClick={nextStep}
+                  disabled={isSubmitting}
+                >
                   अगला →
                 </button>
               ) : (

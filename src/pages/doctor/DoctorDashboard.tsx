@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { User } from '../../App'
 import AddReportForm from '../../components/AddReportForm'
 import DoctorProfile from '../../components/DoctorProfile'
 import './DoctorDashboard.css'
+import serverUrl from '../server'
 
 interface DoctorDashboardProps {
   user: User
@@ -20,10 +21,37 @@ interface DashboardStats {
   todayScreenings: number
   totalChildrenScreened: number
   positiveCases: number
+  reportsThisWeek?: number
+  pendingReports?: number
+}
+
+interface Child {
+  id: number
+  name: string
+  age: number
+  gender: string
+  fatherName: string
+  mobileNo: string
+  schoolName: string
+  haveAadhar: string
+  haveShramik: string
+  heartStatus: string
+  notes: string
+  createdat: string
 }
 
 const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: DoctorDashboardProps) => {
   const [activeTab, setActiveTab] = useState(initialActiveTab || 'dashboard')
+  const [stats, setStats] = useState<DashboardStats>({
+    todayScreenings: 0,
+    totalChildrenScreened: 0,
+    positiveCases: 0,
+    reportsThisWeek: 0,
+    pendingReports: 0
+  })
+  const [childrenList, setChildrenList] = useState<Child[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const menuItems: MenuItem[] = [
     { id: 'dashboard', label: 'डैशबोर्ड', icon: '📊' },
@@ -31,123 +59,161 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
     { id: 'profile', label: 'प्रोफाइल', icon: '👤' }
   ]
 
-  const mockStats: DashboardStats = {
-    todayScreenings: 8,
-    totalChildrenScreened: 156,
-    positiveCases: 12
+  // API Base URL - adjust this according to your setup
+  const API_BASE_URL = `${serverUrl}doctor_api.php`
+
+  // Fetch doctor statistics
+  const fetchDoctorStats = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${API_BASE_URL}?action=get_doctor_stats&doctor_id=${user.id}`)
+      const data = await response.json()
+      
+      if (data.success) {
+        setStats(data.data)
+      } else {
+        setError(data.message || 'Failed to fetch statistics')
+      }
+    } catch (error) {
+      console.error('Error fetching doctor stats:', error)
+      setError('Error fetching statistics')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  // Mock children data based on schema for logged-in doctor
-  const childrenList = [
-    {
-      id: 1,
-      name: 'राहुल कुमार',
-      age: 8,
-      gender: 'पुरुष' as const,
-      fatherName: 'रमेश कुमार',
-      mobileNo: '9876543210',
-      schoolName: 'सरकारी प्राथमिक विद्यालय',
-      heartStatus: 'संदेह नहीं' as const,
-      createdat: '2024-01-15T10:30:00Z'
-    },
-    {
-      id: 2,
-      name: 'प्रिया शर्मा',
-      age: 7,
-      gender: 'महिला' as const,
-      fatherName: 'विकास शर्मा',
-      mobileNo: '9876543211',
-      schoolName: 'गवर्नमेंट स्कूल',
-      heartStatus: 'संदिग्ध' as const,
-      createdat: '2024-01-14T14:20:00Z'
-    },
-    {
-      id: 3,
-      name: 'अमित वर्मा',
-      age: 9,
-      gender: 'पुरुष' as const,
-      fatherName: 'सुनील वर्मा',
-      mobileNo: '9876543212',
-      schoolName: 'पब्लिक स्कूल',
-      heartStatus: 'संदेह नहीं' as const,
-      createdat: '2024-01-13T16:45:00Z'
-    },
-    {
-      id: 4,
-      name: 'काजल सिंह',
-      age: 6,
-      gender: 'महिला' as const,
-      fatherName: 'राजेश सिंह',
-      mobileNo: '9876543213',
-      schoolName: 'सरकारी विद्यालय',
-      heartStatus: 'संदिग्ध' as const,
-      createdat: '2024-01-12T11:15:00Z'
+  // Fetch children list
+  const fetchChildrenList = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`${API_BASE_URL}?action=get_children_list&doctor_id=${user.id}&limit=50`)
+      const data = await response.json()
+      
+      if (data.success) {
+        setChildrenList(data.data.children || [])
+      } else {
+        setError(data.message || 'Failed to fetch children list')
+      }
+    } catch (error) {
+      console.error('Error fetching children list:', error)
+      setError('Error fetching children list')
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
+
+  // Load data when component mounts or when switching to dashboard
+  useEffect(() => {
+    if (activeTab === 'dashboard') {
+      fetchDoctorStats()
+      fetchChildrenList()
+    }
+  }, [activeTab, user.id])
+
+  // Refresh data function
+  const refreshData = () => {
+    fetchDoctorStats()
+    fetchChildrenList()
+  }
 
   const renderDashboard = () => (
     <div>
       <div className="content-header">
         <h3>डैशबोर्ड अवलोकन</h3>
         <p>बच्चों की स्वास्थ्य जांच सेवा</p>
+        {error && (
+          <div className="error-message" style={{color: 'red', marginTop: '10px'}}>
+            {error}
+            <button onClick={refreshData} style={{marginLeft: '10px', padding: '5px 10px'}}>
+              पुनः प्रयास करें
+            </button>
+          </div>
+        )}
       </div>
       
       <div className="stats-grid">
         <div className="stat-card">
           <h4>कुल जांच किए गए बच्चे</h4>
-          <p className="stat-number">{mockStats.totalChildrenScreened}</p>
+          <p className="stat-number">
+            {loading ? '...' : stats.totalChildrenScreened}
+          </p>
           <span className="stat-icon">👶</span>
         </div>
         <div className="stat-card">
           <h4>संदिग्ध मामले</h4>
-          <p className="stat-number">{mockStats.positiveCases}</p>
+          <p className="stat-number">
+            {loading ? '...' : stats.positiveCases}
+          </p>
           <span className="stat-icon">⚠️</span>
         </div>
         <div className="stat-card">
           <h4>आज की जांच</h4>
-          <p className="stat-number">{mockStats.todayScreenings}</p>
+          <p className="stat-number">
+            {loading ? '...' : stats.todayScreenings}
+          </p>
           <span className="stat-icon">📅</span>
         </div>
       </div>
 
       <div className="overview-grid">
         <div className="overview-card">
-          <h4>इलाज किए गए बच्चे</h4>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+            <h4>इलाज किए गए बच्चे</h4>
+            <button 
+              onClick={refreshData} 
+              className="btn-secondary"
+              disabled={loading}
+              style={{padding: '0.5rem 1rem', fontSize: '0.9rem'}}
+            >
+              {loading ? 'लोड हो रहा है...' : 'रिफ्रेश करें'}
+            </button>
+          </div>
           <div className="children-table-container">
-            <table className="children-table">
-              <thead>
-                <tr>
-                  <th>क्रम</th>
-                  <th>नाम</th>
-                  <th>उम्र</th>
-                  <th>लिंग</th>
-                  <th>पिता का नाम</th>
-                  <th>मोबाइल</th>
-                  <th>स्कूल</th>
-                  <th>हृदय स्थिति</th>
-                  <th>जांच तिथि</th>
-                </tr>
-              </thead>
-              <tbody>
-                {childrenList.map((child, index) => (
-                  <tr key={child.id}>
-                    <td>{index + 1}</td>
-                    <td className="child-name-cell">{child.name}</td>
-                    <td>{child.age} वर्ष</td>
-                    <td>{child.gender}</td>
-                    <td>{child.fatherName}</td>
-                    <td>{child.mobileNo}</td>
-                    <td>{child.schoolName}</td>
-                    <td>
-                      <span className={`status-badge ${child.heartStatus === 'संदिग्ध' ? 'status-unhealthy' : 'status-healthy'}`}>
-                        {child.heartStatus}
-                      </span>
-                    </td>
-                    <td>{new Date(child.createdat).toLocaleDateString('hi-IN')}</td>
+            {loading ? (
+              <div className="loading-message" style={{textAlign: 'center', padding: '2rem'}}>
+                <p>डेटा लोड हो रहा है...</p>
+              </div>
+            ) : childrenList.length > 0 ? (
+              <table className="children-table">
+                <thead>
+                  <tr>
+                    <th>क्रम</th>
+                    <th>नाम</th>
+                    <th>उम्र</th>
+                    <th>लिंग</th>
+                    <th>पिता का नाम</th>
+                    <th>मोबाइल</th>
+                    <th>स्कूल</th>
+                    <th>हृदय स्थिति</th>
+                    <th>जांच तिथि</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {childrenList.map((child, index) => (
+                    <tr key={child.id}>
+                      <td>{index + 1}</td>
+                      <td className="child-name-cell">{child.name}</td>
+                      <td>{child.age} वर्ष</td>
+                      <td>{child.gender}</td>
+                      <td>{child.fatherName}</td>
+                      <td>{child.mobileNo}</td>
+                      <td>{child.schoolName}</td>
+                      <td>
+                        <span className={`status-badge ${child.heartStatus === 'संदिग्ध' ? 'status-unhealthy' : 'status-healthy'}`}>
+                          {child.heartStatus}
+                        </span>
+                      </td>
+                      <td>{new Date(child.createdat).toLocaleDateString('hi-IN')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="no-data-message">
+                <p>अभी तक कोई बच्चों की जांच नहीं की गई है।</p>
+                <p>नई रिपोर्ट जोड़ने के लिए "नई रिपोर्ट" पर क्लिक करें।</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -159,7 +225,17 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
       case 'dashboard':
         return renderDashboard()
       case 'addReport':
-        return <AddReportForm user={user} onBack={() => setActiveTab('dashboard')} />
+        return <AddReportForm 
+          user={user} 
+          onBack={() => {
+            setActiveTab('dashboard')
+            // Refresh data when returning from add report form
+            setTimeout(() => {
+              fetchDoctorStats()
+              fetchChildrenList()
+            }, 100)
+          }} 
+        />
       case 'profile':
         return <DoctorProfile user={user} onBack={() => setActiveTab('dashboard')} />
       default:
