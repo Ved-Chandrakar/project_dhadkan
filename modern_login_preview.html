@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHADKAN - Modern Login Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes logoHover {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .logo-hover:hover {
+            animation: logoHover 0.6s ease-in-out;
+        }
+        
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            min-height: 600px;
+            display: flex;
+            flex-direction: row;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .left-section {
+            flex: 1;
+            background: linear-gradient(135deg, #FCBCD7 0%, #FFCEE6 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .logo-container {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        .logo-image {
+            width: 180px;
+            height: auto;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.1));
+            transition: transform 0.3s ease;
+        }
+        
+        .project-title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            color: #d81b60;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            color: #ad1457;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .right-section {
+            flex: 1;
+            padding: 3rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: #ffffff;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .login-header h2 {
+            color: #2c3e50;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+            margin: 0;
+            opacity: 0.8;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 0.95rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid #ecf0f1;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+            box-sizing: border-box;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: #FCBCD7;
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(252, 188, 215, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #FCBCD7 0%, #FFCEE6 100%);
+            color: #ad1457;
+            border: none;
+            padding: 1.2rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: none;
+            box-shadow: 0 6px 20px rgba(252, 188, 215, 0.3);
+            margin-top: 0.5rem;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #f8a5c2 0%, #fbb8e6 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(252, 188, 215, 0.4);
+        }
+        
+        .decorative-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .decorative-circle-1 {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .decorative-circle-2 {
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        
+        @media (max-width: 768px) {
+            .login-page {
+                padding: 1rem;
+            }
+            
+            .login-card {
+                max-width: 400px;
+                min-height: auto;
+                flex-direction: column;
+            }
+            
+            .left-section {
+                padding: 2rem 1.5rem;
+                min-height: 200px;
+            }
+            
+            .right-section {
+                padding: 2rem 1.5rem;
+            }
+            
+            .logo-image {
+                width: 120px;
+            }
+            
+            .project-title {
+                font-size: 2rem;
+            }
+            
+            .tagline {
+                font-size: 1rem;
+            }
+            
+            .login-header h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-card">
+            <!-- Left Side - Brand Section -->
+            <div class="left-section">
+                <div class="decorative-elements">
+                    <div class="decorative-circle-1"></div>
+                    <div class="decorative-circle-2"></div>
+                </div>
+                
+                <div class="logo-container">
+                    <img 
+                        src="dhadkan_logo.png"
+                        alt="Dhadkan Logo"
+                        class="logo-image logo-hover"
+                        onerror="this.style.display='none'"
+                    />
+                </div>
+                
+                <h1 class="project-title">DHADKAN</h1>
+                <p class="tagline">स्वस्थ दिल, स्वस्थ धड़क</p>
+            </div>
+
+            <!-- Right Side - Login Form -->
+            <div class="right-section">
+                <div class="login-header">
+                    <h2>प्रवेश करें</h2>
+                    <p>अपनी भूमिका चुनकर लॉगिन करें</p>
+                </div>
+
+                <form>
+                    <div class="form-group">
+                        <label for="role">भूमिका चुनें:</label>
+                        <select class="form-input" id="role" name="role" required>
+                            <option value="admin">प्रशासक (Admin)</option>
+                            <option value="doctor">चिकित्सक (Doctor)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">ईमेल पता:</label>
+                        <input
+                            class="form-input"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="अपना ईमेल दर्ज करें"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">पासवर्ड:</label>
+                        <input
+                            class="form-input"
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="अपना पासवर्ड दर्ज करें"
+                            required
+                        />
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        लॉगिन करें
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
