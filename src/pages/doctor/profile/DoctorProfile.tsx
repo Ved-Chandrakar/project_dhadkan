@@ -1,428 +1,475 @@
-import { useState } from 'react'
-import { User } from '../../../App'
-import './DoctorProfile.css'
+import React, { useState, useEffect } from 'react'
+import serverUrl from '../../server'
 
 interface DoctorProfileProps {
-  user: User
-  onBack: () => void
-}
-
-interface DoctorDetails {
-  personalInfo: {
+  user: {
+    id: number
     name: string
     email: string
-    phone: string
-    dateOfBirth: string
-    gender: 'पुरुष' | 'महिला'
-    address: string
-  }
-  professionalInfo: {
-    specialization: string
-    medicalLicense: string
-    hospital: string
-    department: string
-    experience: number
-    qualification: string
-    joiningDate: string
-  }
-  statistics: {
-    totalScreenings: number
-    thisMonthScreenings: number
-    positiveCases: number
-    pendingReports: number
-  }
-  preferences: {
-    notifications: boolean
-    emailAlerts: boolean
-    language: 'हिंदी' | 'अंग्रेजी'
-    theme: 'light' | 'dark'
   }
 }
 
-const DoctorProfile = ({ user, onBack }: DoctorProfileProps) => {
-  const [activeTab, setActiveTab] = useState('personal')
-  const [isEditing, setIsEditing] = useState(false)
-  const [doctorDetails, setDoctorDetails] = useState<DoctorDetails>({
-    personalInfo: {
-      name: user.name || 'डॉ. प्रिया शर्मा',
-      email: user.email || 'dr.priya@gov.in',
-      phone: '9876543210',
-      dateOfBirth: '1985-06-15',
-      gender: 'महिला',
-      address: 'सेक्टर 15, गुड़गांव, हरियाणा - 122001'
-    },
-    professionalInfo: {
-      specialization: 'बाल चिकित्सक',
-      medicalLicense: 'MCI12345678',
-      hospital: 'सरकारी अस्पताल, गुड़गांव',
-      department: 'बाल रोग विभाग',
-      experience: 8,
-      qualification: 'MBBS, MD (Pediatrics)',
-      joiningDate: '2020-03-15'
-    },
-    statistics: {
-      totalScreenings: 450,
-      thisMonthScreenings: 35,
-      positiveCases: 28,
-      pendingReports: 5
-    },
-    preferences: {
-      notifications: true,
-      emailAlerts: true,
-      language: 'हिंदी',
-      theme: 'light'
-    }
-  })
+interface DoctorData {
+  id: number
+  doctorName: string
+  hospitalType: string
+  hospitalname: string
+  phoneNo: string
+  experience: number | null
+  email: string
+  createdAt: string
+  updatedAt: string
+}
 
-  const [editForm, setEditForm] = useState(doctorDetails)
+const DoctorProfile: React.FC<DoctorProfileProps> = ({ user }) => {
+  const [doctorData, setDoctorData] = useState<DoctorData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleInputChange = (section: keyof DoctorDetails, field: string, value: any) => {
-    setEditForm(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
+  // Add CSS animations
+  React.useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
-    }))
+      @keyframes pulse {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.05); }
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .profile-card {
+        animation: fadeInUp 0.6s ease-out;
+      }
+    `
+    document.head.appendChild(style)
+    return () => {
+      document.head.removeChild(style)
+    }
+  }, [])
+
+  // Responsive check
+  const isMobile = window.innerWidth <= 768
+
+  // Comprehensive styles object
+  const styles = {
+    container: {
+      minHeight: '100vh',
+      background: '#f8f9fa',
+      padding: isMobile ? '1rem' : '2rem'
+    },
+    contentHeader: {
+      marginBottom: '2rem',
+      background: 'linear-gradient(180deg, #71a876ff 0%, #3f704fff 100%)',
+      padding: '1rem',
+      borderRadius: '8px',
+      textAlign: 'center' as const
+    },
+    contentHeaderH3: {
+      color: '#ffffff',
+      fontSize: '2.5rem',
+      margin: '0 0 0.5rem 0',
+      fontWeight: 700,
+      textShadow: '2px 2px 4px rgba(63, 112, 79, 0.1)'
+    },
+    contentHeaderP: {
+      margin: 0,
+      color: '#ffffff',
+      fontSize: '1.1rem',
+      fontWeight: 500
+    },
+    errorMessage: {
+      background: 'linear-gradient(45deg, #dc3545, #c82333)',
+      color: 'white',
+      marginTop: '1rem',
+      padding: '1rem',
+      borderRadius: '12px',
+      boxShadow: '0 4px 15px rgba(220, 53, 69, 0.3)'
+    },
+    profileContainer: {
+      maxWidth: '900px',
+      margin: '0 auto'
+    },
+    profileCard: {
+      background: 'white',
+      borderRadius: '20px',
+      boxShadow: '2 20px 40px rgba(63, 112, 79, 0.1)',
+      overflow: 'hidden',
+      border: '1px solid #000000',
+      position: 'relative' as const,
+    },
+    profileCardBefore: {
+      content: "''",
+      position: 'absolute' as const,
+      top: 0,
+      left: 0,
+      right: 0,
+      height: '5px',
+      background: 'linear-gradient(90deg, #71a876ff, #3f704fff)',
+      zIndex: 1
+    },
+    profileInfo: {
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row' as 'column' | 'row',
+      alignItems: 'stretch'
+    },
+    profileAvatar: {
+      textAlign: 'center' as const,
+      padding: '3rem 2rem',
+      background: 'linear-gradient(135deg, #71a876ff 0%, #3f704fff 100%)',
+      color: 'white',
+      minWidth: isMobile ? '100%' : '300px',
+      position: 'relative' as const,
+      overflow: 'hidden'
+    },
+    profileAvatarBefore: {
+      content: "''",
+      position: 'absolute' as const,
+      top: '-50%',
+      left: '-50%',
+      width: '200%',
+      height: '200%',
+      background: 'rgba(255,255,255,0.1)',
+      borderRadius: '50%',
+      animation: 'pulse 3s ease-in-out infinite'
+    },
+    avatarIcon: {
+      fontSize: '5rem',
+      display: 'block',
+      marginTop: '10rem',
+      marginBottom: '1rem',
+      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))',
+      position: 'relative' as const,
+      zIndex: 2
+    },
+    profileAvatarH4: {
+      margin: 0,
+      fontSize: '1.8rem',
+      fontWeight: 600,
+      textShadow: '1px 1px 3px rgba(0,0,0,0.3)',
+      position: 'relative' as const,
+      zIndex: 2
+    },
+    profileAvatarSubtitle: {
+      margin: '0.5rem 0 0 0',
+      fontSize: '1rem',
+      opacity: 0.9,
+      fontWeight: 300,
+      position: 'relative' as const,
+      zIndex: 2
+    },
+    profileDetails: {
+      padding: '2.5rem',
+      flex: 1,
+      background: 'linear-gradient(135deg, #f8fcf8 0%, #ffffff 100%)'
+    },
+    detailsTitle: {
+      color: '#3f704fff',
+      fontSize: '1.4rem',
+      marginBottom: '1.5rem',
+      fontWeight: 600,
+      borderBottom: '2px solid #e8f5e8',
+      paddingBottom: '0.5rem'
+    },
+    detailRow: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      padding: '1rem 0',
+      borderBottom: '1px solid rgba(232, 245, 232, 0.8)',
+      flexDirection: isMobile ? 'column' : 'row' as 'column' | 'row',
+      alignItems: isMobile ? 'flex-start' : 'center',
+      gap: isMobile ? '0.5rem' : '0',
+      transition: 'all 0.3s ease'
+    },
+    detailRowHover: {
+      backgroundColor: 'rgba(63, 112, 79, 0.08)',
+      borderRadius: '12px',
+      margin: '0 -1rem',
+      padding: '1rem 1rem',
+      transform: 'translateX(5px)'
+    },
+    detailRowLast: {
+      borderBottom: 'none'
+    },
+    detailLabel: {
+      fontWeight: 600,
+      color: '#3f704fff',
+      minWidth: isMobile ? 'auto' : '180px',
+      fontSize: '0.95rem'
+    },
+    detailValue: {
+      color: '#71a876ff',
+      textAlign: isMobile ? 'left' : 'right' as 'left' | 'right',
+      fontWeight: 500,
+      fontSize: '0.95rem'
+    },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      padding: '3rem',
+      color: '#3f704fff'
+    },
+    loadingSpinner: {
+      width: '40px',
+      height: '40px',
+      border: '4px solid #e8f5e8',
+      borderTop: '4px solid #3f704fff',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite',
+      margin: '0 auto 1rem'
+    },
+    refreshBtn: {
+      marginLeft: '10px',
+      padding: '8px 16px',
+      background: 'linear-gradient(45deg, #dc3545, #c82333)',
+      color: 'white',
+      border: 'none',
+      borderRadius: '8px',
+      cursor: 'pointer',
+      fontWeight: 600,
+      transition: 'all 0.3s ease'
+    }
   }
 
-  const handleSave = () => {
-    setDoctorDetails(editForm)
-    setIsEditing(false)
-    alert('प्रोफाइल सफलतापूर्वक अपडेट हो गई!')
+  useEffect(() => {
+    fetchDoctorProfile()
+  }, [user.id])
+
+  const fetchDoctorProfile = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const response = await fetch(`${serverUrl}get_doctor_profile.php?doctor_id=${user.id}`)
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        setDoctorData(result.data.profile)
+      } else {
+        throw new Error(result.message || 'Failed to fetch doctor profile')
+      }
+    } catch (error) {
+      console.error('Error fetching doctor profile:', error)
+      setError(error instanceof Error ? error.message : 'Unknown error occurred')
+      
+      // Fallback to user data if API fails
+      setDoctorData({
+        id: user.id,
+        doctorName: user.name || '',
+        hospitalType: '',
+        hospitalname: '',
+        phoneNo: '',
+        experience: null,
+        email: user.email || '',
+        createdAt: '',
+        updatedAt: ''
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleCancel = () => {
-    setEditForm(doctorDetails)
-    setIsEditing(false)
-  }
-
-  const tabItems = [
-    { id: 'personal', label: 'व्यक्तिगत जानकारी', icon: '👤' },
-    { id: 'professional', label: 'व्यावसायिक जानकारी', icon: '🏥' },
-    { id: 'statistics', label: 'सांख्यिकी', icon: '📊' },
-    { id: 'preferences', label: 'सेटिंग्स', icon: '⚙️' }
-  ]
-
-  const renderPersonalInfo = () => (
-    <div className="profile-section">
-      <div className="section-header">
-        <h3>व्यक्तिगत जानकारी</h3>
-        {!isEditing && (
-          <button className="btn-edit" onClick={() => setIsEditing(true)}>
-            संपादित करें
-          </button>
-        )}
-      </div>
-
-      <div className="info-grid">
-        <div className="info-group">
-          <label>पूरा नाम</label>
-          {isEditing ? (
-            <input
-              type="text"
-              value={editForm.personalInfo.name}
-              onChange={(e) => handleInputChange('personalInfo', 'name', e.target.value)}
-            />
-          ) : (
-            <p>{doctorDetails.personalInfo.name}</p>
-          )}
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <div style={styles.contentHeader}>
+          {/* <button 
+            style={styles.backBtn} 
+            onClick={onBack}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(19, 136, 8, 0.4)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'none'
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(19, 136, 8, 0.3)'
+            }}
+          >
+            🔙 वापस
+          </button> */}
+          <h3 style={styles.contentHeaderH3}>चिकित्सक प्रोफाइल</h3>
+          <p style={styles.contentHeaderP}>व्यक्तिगत जानकारी लोड हो रही है...</p>
         </div>
-
-        <div className="info-group">
-          <label>ईमेल पता</label>
-          {isEditing ? (
-            <input
-              type="email"
-              value={editForm.personalInfo.email}
-              onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
-            />
-          ) : (
-            <p>{doctorDetails.personalInfo.email}</p>
-          )}
-        </div>
-
-        <div className="info-group">
-          <label>मोबाइल नंबर</label>
-          {isEditing ? (
-            <input
-              type="tel"
-              value={editForm.personalInfo.phone}
-              onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
-            />
-          ) : (
-            <p>{doctorDetails.personalInfo.phone}</p>
-          )}
-        </div>
-
-        <div className="info-group">
-          <label>जन्म तिथि</label>
-          {isEditing ? (
-            <input
-              type="date"
-              value={editForm.personalInfo.dateOfBirth}
-              onChange={(e) => handleInputChange('personalInfo', 'dateOfBirth', e.target.value)}
-            />
-          ) : (
-            <p>{new Date(doctorDetails.personalInfo.dateOfBirth).toLocaleDateString('hi-IN')}</p>
-          )}
-        </div>
-
-        <div className="info-group">
-          <label>लिंग</label>
-          {isEditing ? (
-            <select
-              value={editForm.personalInfo.gender}
-              onChange={(e) => handleInputChange('personalInfo', 'gender', e.target.value)}
-            >
-              <option value="पुरुष">पुरुष</option>
-              <option value="महिला">महिला</option>
-            </select>
-          ) : (
-            <p>{doctorDetails.personalInfo.gender}</p>
-          )}
-        </div>
-
-        <div className="info-group full-width">
-          <label>पता</label>
-          {isEditing ? (
-            <textarea
-              value={editForm.personalInfo.address}
-              onChange={(e) => handleInputChange('personalInfo', 'address', e.target.value)}
-              rows={3}
-            />
-          ) : (
-            <p>{doctorDetails.personalInfo.address}</p>
-          )}
-        </div>
-      </div>
-
-      {isEditing && (
-        <div className="edit-actions">
-          <button className="btn-primary" onClick={handleSave}>
-            सहेजें
-          </button>
-          <button className="btn-secondary" onClick={handleCancel}>
-            रद्द करें
-          </button>
-        </div>
-      )}
-    </div>
-  )
-
-  const renderProfessionalInfo = () => (
-    <div className="profile-section">
-      <div className="section-header">
-        <h3>व्यावसायिक जानकारी</h3>
-      </div>
-
-      <div className="info-grid">
-        <div className="info-group">
-          <label>विशेषज्ञता</label>
-          <p>{doctorDetails.professionalInfo.specialization}</p>
-        </div>
-
-        <div className="info-group">
-          <label>मेडिकल लाइसेंस</label>
-          <p>{doctorDetails.professionalInfo.medicalLicense}</p>
-        </div>
-
-        <div className="info-group">
-          <label>अस्पताल</label>
-          <p>{doctorDetails.professionalInfo.hospital}</p>
-        </div>
-
-        <div className="info-group">
-          <label>विभाग</label>
-          <p>{doctorDetails.professionalInfo.department}</p>
-        </div>
-
-        <div className="info-group">
-          <label>अनुभव</label>
-          <p>{doctorDetails.professionalInfo.experience} वर्ष</p>
-        </div>
-
-        <div className="info-group">
-          <label>योग्यता</label>
-          <p>{doctorDetails.professionalInfo.qualification}</p>
-        </div>
-
-        <div className="info-group">
-          <label>ज्वाइनिंग तारीख</label>
-          <p>{new Date(doctorDetails.professionalInfo.joiningDate).toLocaleDateString('hi-IN')}</p>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderStatistics = () => (
-    <div className="profile-section">
-      <div className="section-header">
-        <h3>कार्य सांख्यिकी</h3>
-      </div>
-
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">👶</div>
-          <div className="stat-content">
-            <h4>कुल जांच</h4>
-            <p className="stat-number">{doctorDetails.statistics.totalScreenings}</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">📅</div>
-          <div className="stat-content">
-            <h4>इस महीने</h4>
-            <p className="stat-number">{doctorDetails.statistics.thisMonthScreenings}</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">⚠️</div>
-          <div className="stat-content">
-            <h4>सकारात्मक मामले</h4>
-            <p className="stat-number">{doctorDetails.statistics.positiveCases}</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">⏳</div>
-          <div className="stat-content">
-            <h4>लंबित रिपोर्ट</h4>
-            <p className="stat-number">{doctorDetails.statistics.pendingReports}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="performance-chart">
-        <h4>मासिक प्रदर्शन</h4>
-        <p>पिछले 6 महीनों में आपके द्वारा की गई जांच का विवरण:</p>
-        <div className="chart-placeholder">
-          <div className="chart-bar" style={{ height: '60%' }}>जन</div>
-          <div className="chart-bar" style={{ height: '75%' }}>फर</div>
-          <div className="chart-bar" style={{ height: '40%' }}>मार</div>
-          <div className="chart-bar" style={{ height: '85%' }}>अप्र</div>
-          <div className="chart-bar" style={{ height: '70%' }}>मई</div>
-          <div className="chart-bar" style={{ height: '90%' }}>जून</div>
-        </div>
-      </div>
-    </div>
-  )
-
-  const renderPreferences = () => (
-    <div className="profile-section">
-      <div className="section-header">
-        <h3>सेटिंग्स और प्राथमिकताएं</h3>
-      </div>
-
-      <div className="preferences-grid">
-        <div className="preference-group">
-          <h4>नोटिफिकेशन सेटिंग्स</h4>
-          
-          <div className="preference-item">
-            <label className="switch-label">
-              <span>पुश नोटिफिकेशन</span>
-              <div className="switch">
-                <input
-                  type="checkbox"
-                  checked={doctorDetails.preferences.notifications}
-                  onChange={(e) => handleInputChange('preferences', 'notifications', e.target.checked)}
-                />
-                <span className="slider"></span>
-              </div>
-            </label>
-          </div>
-
-          <div className="preference-item">
-            <label className="switch-label">
-              <span>ईमेल अलर्ट</span>
-              <div className="switch">
-                <input
-                  type="checkbox"
-                  checked={doctorDetails.preferences.emailAlerts}
-                  onChange={(e) => handleInputChange('preferences', 'emailAlerts', e.target.checked)}
-                />
-                <span className="slider"></span>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <div className="preference-group">
-          <h4>डिस्प्ले सेटिंग्स</h4>
-          
-          <div className="preference-item">
-            <label>भाषा</label>
-            <select
-              value={doctorDetails.preferences.language}
-              onChange={(e) => handleInputChange('preferences', 'language', e.target.value)}
-            >
-              <option value="हिंदी">हिंदी</option>
-              <option value="अंग्रेजी">अंग्रेजी</option>
-            </select>
-          </div>
-
-          <div className="preference-item">
-            <label>थीम</label>
-            <select
-              value={doctorDetails.preferences.theme}
-              onChange={(e) => handleInputChange('preferences', 'theme', e.target.value)}
-            >
-              <option value="light">हल्का</option>
-              <option value="dark">गहरा</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div className="danger-zone">
-        <h4>खाता प्रबंधन</h4>
-        <div className="danger-actions">
-          <button className="btn-danger">पासवर्ड बदलें</button>
-          <button className="btn-danger">खाता निष्क्रिय करें</button>
-        </div>
-      </div>
-    </div>
-  )
-
-  return (
-    <div className="doctor-profile">
-      <div className="page-header">
-        <div className="header-content">
-          <button className="back-btn" onClick={onBack}>
-            ← वापस
-          </button>
-          <div className="header-info">
-            <div className="doctor-avatar-large">👩‍⚕️</div>
-            <div>
-              <h1>{doctorDetails.personalInfo.name}</h1>
-              <p>{doctorDetails.professionalInfo.specialization}</p>
-              <p>{doctorDetails.professionalInfo.hospital}</p>
+        
+        <div style={styles.profileContainer}>
+          <div style={styles.profileCard} className="profile-card">
+            <div style={styles.profileCardBefore}></div>
+            <div style={styles.loadingMessage}>
+              <div style={styles.loadingSpinner}></div>
+              <h4 style={{color: '#3f704fff', margin: '0 0 1rem 0'}}>प्रोफाइल डेटा लोड हो रहा है...</h4>
+              <p style={{color: '#7f8c8d', margin: 0}}>कृपया प्रतीक्षा करें</p>
             </div>
           </div>
         </div>
       </div>
+    )
+  }
 
-      <div className="content-container">
-        <div className="profile-tabs">
-          {tabItems.map(tab => (
-            <button
-              key={tab.id}
-              className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
+  return (
+    <div style={styles.container}>
+      <div style={styles.contentHeader}>
+        <h3 style={styles.contentHeaderH3}>चिकित्सक प्रोफाइल</h3>
+        <p style={styles.contentHeaderP}>व्यक्तिगत जानकारी और सेटिंग्स</p>
+        {error && (
+          <div style={styles.errorMessage}>
+            <h4 style={{margin: '0 0 0.5rem 0'}}>⚠ त्रुटि</h4>
+            <p style={{margin: '0 0 1rem 0'}}>Error: {error}</p>
+            <button 
+              onClick={fetchDoctorProfile} 
+              style={styles.refreshBtn}
             >
-              <span className="tab-icon">{tab.icon}</span>
-              <span className="tab-label">{tab.label}</span>
+              ↻ पुनः प्रयास करें
             </button>
-          ))}
-        </div>
-
-        <div className="profile-content">
-          {activeTab === 'personal' && renderPersonalInfo()}
-          {activeTab === 'professional' && renderProfessionalInfo()}
-          {activeTab === 'statistics' && renderStatistics()}
-          {activeTab === 'preferences' && renderPreferences()}
+          </div>
+        )}
+      </div>
+      
+      <div style={styles.profileContainer}>
+        <div style={styles.profileCard} className="profile-card">
+          <div style={styles.profileCardBefore}></div>
+          <div style={styles.profileInfo}>
+            <div style={styles.profileAvatar}>
+              <div style={styles.profileAvatarBefore}></div>
+              <span style={styles.avatarIcon}>🩺</span>
+              <h4 style={styles.profileAvatarH4}>{doctorData?.doctorName || 'डॉक्टर'}</h4>
+              <p style={styles.profileAvatarSubtitle}>चिकित्सा विशेषज्ञ</p>
+            </div>
+            
+            <div style={styles.profileDetails}>
+              <h5 style={styles.detailsTitle}>□ व्यक्तिगत विवरण</h5>
+              <div 
+                style={styles.detailRow}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>🆔 चिकित्सक ID:</label>
+                <span style={styles.detailValue}>{doctorData?.id || 'N/A'}</span>
+              </div>
+              <div 
+                style={styles.detailRow}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>👤 चिकित्सक नाम:</label>
+                <span style={styles.detailValue}>{doctorData?.doctorName || 'N/A'}</span>
+              </div>
+              <div 
+                style={styles.detailRow}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>⌂ अस्पताल का प्रकार:</label>
+                <span style={styles.detailValue}>{doctorData?.hospitalType || 'N/A'}</span>
+              </div>
+              <div 
+                style={styles.detailRow}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>🏨 अस्पताल का नाम:</label>
+                <span style={styles.detailValue}>{doctorData?.hospitalname || 'N/A'}</span>
+              </div>
+              <div 
+                style={styles.detailRow}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>📱 मोबाइल नंबर:</label>
+                <span style={styles.detailValue}>{doctorData?.phoneNo || 'N/A'}</span>
+              </div>
+              <div 
+                style={styles.detailRow}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>🎓 अनुभव (वर्ष):</label>
+                <span style={styles.detailValue}>{doctorData?.experience ? `${doctorData.experience} वर्ष` : 'N/A'}</span>
+              </div>
+              <div 
+                style={styles.detailRow}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>📧 ईमेल पता:</label>
+                <span style={styles.detailValue}>{doctorData?.email || 'N/A'}</span>
+              </div>
+              <div 
+                style={styles.detailRow}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>📅 खाता बनाया गया:</label>
+                <span style={styles.detailValue}>{doctorData?.createdAt ? new Date(doctorData.createdAt).toLocaleDateString('hi-IN') : 'N/A'}</span>
+              </div>
+              <div 
+                style={{...styles.detailRow, ...styles.detailRowLast}}
+                onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.detailRowHover)}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.borderRadius = '0'
+                  e.currentTarget.style.margin = '0'
+                  e.currentTarget.style.padding = '1rem 0'
+                }}
+              >
+                <label style={styles.detailLabel}>↻ अंतिम अपडेट:</label>
+                <span style={styles.detailValue}>{doctorData?.updatedAt ? new Date(doctorData.updatedAt).toLocaleDateString('hi-IN') : 'N/A'}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

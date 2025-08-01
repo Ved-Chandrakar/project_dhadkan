@@ -61,17 +61,19 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
       minHeight: isMobile ? '200px' : 'auto'
     },
     logoContainer: {
-      marginTop: '-1rem',
+      marginTop: '-20rem',
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      position: 'relative' as const
+      position: 'relative' as const,
+      zIndex: 2
     },
     logoImage: {
       width: isMobile ? '300px' : '360px',
       height: 'auto',
       filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.1))',
-      transition: 'transform 0.3s ease'
+      borderRadius: '12px',
+      transition: 'transform 0.3s ease',
     },
     // projectTitle: {
     //   fontSize: isMobile ? '2rem' : '2.8rem',
@@ -84,12 +86,53 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
     // },
     tagline: {
       fontSize: isMobile ? '1.5rem' : '1.5rem',
-      color: '#ad1457',
+      color: '#141414ff',
       fontWeight: 500,
       textAlign: 'center' as const,
       lineHeight: 1.6,
       opacity: 0.9,
-      marginTop: '-6rem'
+      marginTop: '-6rem',
+      position: 'relative' as const,
+      zIndex: 2
+    },
+    pulseContainer: {
+      position: 'absolute' as const,
+      top: '70px',
+      left: '0',
+      right: '0',
+      bottom: '0',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      overflow: 'hidden' as const,
+      zIndex: 1
+    },
+    ssimptLogo: {
+      position: 'absolute' as const,
+      bottom: '-30px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: isMobile ? '10px' : '250px',
+      height: 'auto',
+      opacity: 0.8,
+      zIndex: 2
+    },
+    pulseLine: {
+      width: '100%',
+      height: '5px',
+      background: '#ff0000',
+      position: 'relative' as const
+    },
+    pulseWave: {
+      position: 'absolute' as const,
+      top: '-15px',
+      left: '0',
+      width: '100%',
+      height: '25px',
+      background: 'solid #ff0000',
+      overflow: 'hidden' as const
     },
     rightSection: {
       flex: isMobile ? 'none' : 1,
@@ -176,79 +219,6 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
       opacity: 0.7,
       cursor: 'not-allowed',
       transform: 'none'
-    },
-    decorativeElements: {
-      position: 'absolute' as const,
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none' as const,
-      overflow: 'hidden' as const
-    },
-    decorativeCircle1: {
-      position: 'absolute' as const,
-      top: '-30px',
-      right: '-30px',
-      width: '100px',
-      height: '100px',
-      background: 'rgba(255, 255, 255, 0.15)',
-      borderRadius: '50%',
-      animation: 'float 6s ease-in-out infinite'
-    },
-    decorativeCircle2: {
-      position: 'absolute' as const,
-      bottom: '-50px',
-      left: '-50px',
-      width: '120px',
-      height: '120px',
-      background: 'rgba(255, 255, 255, 0.1)',
-      borderRadius: '50%',
-      animation: 'float 8s ease-in-out infinite reverse'
-    },
-    decorativeCircle3: {
-      position: 'absolute' as const,
-      top: '40%',
-      left: '-20px',
-      width: '80px',
-      height: '80px',
-      background: 'rgba(255, 255, 255, 0.08)',
-      borderRadius: '50%',
-      animation: 'float 10s ease-in-out infinite',
-      animationDelay: '2s'
-    },
-    decorativeCircle4: {
-      position: 'absolute' as const,
-      bottom: '20%',
-      right: '-25px',
-      width: '90px',
-      height: '90px',
-      background: 'rgba(255, 255, 255, 0.12)',
-      borderRadius: '50%',
-      animation: 'float 7s ease-in-out infinite reverse',
-      animationDelay: '1s'
-    },
-    decorativeCircle5: {
-      position: 'absolute' as const,
-      top: '15%',
-      left: '50%',
-      width: '60px',
-      height: '60px',
-      background: 'rgba(255, 255, 255, 0.06)',
-      borderRadius: '50%',
-      animation: 'float 12s ease-in-out infinite',
-      animationDelay: '3s'
-    },
-    decorativeCircle6: {
-      position: 'absolute' as const,
-      bottom: '40%',
-      left: '20%',
-      width: '70px',
-      height: '70px',
-      background: 'rgba(255, 255, 255, 0.09)',
-      borderRadius: '50%',
-      animation: 'float 9s ease-in-out infinite reverse',
-      animationDelay: '4s'
     }
   }
 
@@ -332,6 +302,50 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
           .logo-hover:hover {
             animation: logoHover 0.6s ease-in-out;
           }
+
+          @keyframes pulse {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+
+          .pulse-line::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 0;
+            width: 100px;
+            height: 32px;
+            background: transparent;
+            border-left: 2px solid #ad1457;
+            animation: pulse 3s ease-in-out infinite;
+          }
+
+          .pulse-line::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 0;
+            width: 100px;
+            height: 18px;
+            background: transparent;
+            border-left: 1px solid rgba(173, 20, 87, 0.6);
+            animation: pulse 3s ease-in-out infinite 0.1s;
+          }
+
+          .heartbeat-path {
+            stroke: #ad1457;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawPulse 4s ease-in-out infinite;
+          }
+
+          @keyframes drawPulse {
+            0% { stroke-dashoffset: 1000; }
+            50% { stroke-dashoffset: 0; }
+            100% { stroke-dashoffset: -1000; }
+          }
         `}
       </style>
       
@@ -339,15 +353,6 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
         <div style={styles.loginCard}>
           {/* Left Side - Brand Section */}
           <div style={styles.leftSection}>
-            <div style={styles.decorativeElements}>
-              <div style={styles.decorativeCircle1}></div>
-              <div style={styles.decorativeCircle2}></div>
-              <div style={styles.decorativeCircle3}></div>
-              <div style={styles.decorativeCircle4}></div>
-              <div style={styles.decorativeCircle5}></div>
-              <div style={styles.decorativeCircle6}></div>
-            </div>
-            
             <div style={styles.logoContainer}>
               <img 
                 src="/dhadkan_logo.png"
@@ -362,6 +367,26 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
             
             {/* <h1 style={styles.projectTitle}>DHADKAN</h1> */}
             <p style={styles.tagline}>स्वस्थ दिल, स्वस्थ धड़कन</p>
+            
+            {/* Pulse Rate Animation */}
+            <div style={styles.pulseContainer}>
+              <svg width="100%" height="100%" viewBox="0 0 400 400" style={{position: 'absolute', opacity: 0.4}}>
+                <path 
+                  d="M0,200 L50,200 L55,180 L60,240 L65,175 L70,245 L75,200 L125,200 L130,180 L135,240 L140,175 L145,245 L150,200 L200,200 L205,180 L210,240 L215,175 L220,245 L225,200 L275,200 L280,180 L285,240 L290,175 L295,245 L300,200 L350,200 L355,180 L360,240 L365,175 L370,245 L375,200 L400,200" 
+                  className="heartbeat-path"
+                />
+              </svg>
+            </div>
+            
+            {/* SSIPMT Logo at bottom */}
+            <img 
+              src="/ssipmt_color_logo.png"
+              alt="SSIPMT Logo"
+              style={styles.ssimptLogo}
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
           </div>
 
           {/* Right Side - Login Form */}

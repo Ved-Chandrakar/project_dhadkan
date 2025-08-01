@@ -47,10 +47,12 @@ const styles = {
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
   },
   pageHeader: {
-    background: 'linear-gradient(135deg, #FF9933 0%, #e88822 100%)',
+    background: 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)',
     color: 'white',
     padding: '2rem',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+    boxShadow: '0 4px 20px rgba(11, 15, 43, 0.2)',
+    position: 'relative' as const,
+    overflow: 'hidden' as const
   },
   headerContent: {
     display: 'flex',
@@ -92,7 +94,7 @@ const styles = {
     padding: '2rem'
   },
   loadingTitle: {
-    color: '#FF9933',
+    color: '#6078a4',
     fontSize: '1.5rem',
     margin: '0 0 0.5rem 0',
     fontWeight: 600
@@ -126,13 +128,13 @@ const styles = {
     height: '4px'
   },
   statCardHealthy: {
-    background: 'linear-gradient(90deg, #c55b04, #c95820)'
+    background: 'linear-gradient(90deg, #6078a4, #2f4b80)'
   },
   statCardUnhealthy: {
     background: 'linear-gradient(90deg, #dc3545, #e74c3c)'
   },
   statCardTotal: {
-    background: 'linear-gradient(90deg, #FF9933, #e88822)'
+    background: 'linear-gradient(90deg, #6078a4, #0b0f2b)'
   },
   statTitle: {
     color: '#495057',
@@ -149,13 +151,13 @@ const styles = {
     lineHeight: 1
   },
   statNumberHealthy: {
-    color: '#28a745'
+    color: '#6078a4'
   },
   statNumberUnhealthy: {
     color: '#dc3545'
   },
   statNumberTotal: {
-    color: '#FF9933'
+    color: '#6078a4'
   },
   statIcon: {
     position: 'absolute' as const,
@@ -192,7 +194,7 @@ const styles = {
   },
   searchInputFocus: {
     outline: 'none',
-    borderColor: '#FF9933'
+    borderColor: '#6078a4'
   },
   searchIcon: {
     position: 'absolute' as const,
@@ -217,7 +219,7 @@ const styles = {
   },
   filterSelectFocus: {
     outline: 'none',
-    borderColor: '#FF9933'
+    borderColor: '#6078a4'
   },
   tableContainer: {
     background: 'white',
@@ -232,7 +234,7 @@ const styles = {
     borderCollapse: 'collapse' as const
   },
   tableHeader: {
-    background: 'linear-gradient(45deg, #FF9933, #e88822)',
+    background: 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)',
     color: 'white',
     padding: '1rem',
     textAlign: 'left' as const,
@@ -312,7 +314,7 @@ const styles = {
     transition: 'all 0.3s ease'
   },
   btnSmallPrimary: {
-    background: '#FF9933',
+    background: '#6078a4',
     color: 'white'
   },
   pagination: {
@@ -324,8 +326,8 @@ const styles = {
   },
   paginationBtn: {
     background: 'white',
-    border: '2px solid #FF9933',
-    color: '#FF9933',
+    border: '2px solid #6078a4',
+    color: '#6078a4',
     padding: '0.5rem 1rem',
     borderRadius: '6px',
     cursor: 'pointer',
@@ -333,7 +335,7 @@ const styles = {
     transition: 'all 0.3s ease'
   },
   paginationBtnHover: {
-    background: '#FF9933',
+    background: '#6078a4',
     color: 'white'
   },
   paginationBtnDisabled: {
@@ -400,7 +402,7 @@ const styles = {
   },
   modalTitle: {
     margin: 0,
-    color: '#FF9933',
+    color: '#6078a4',
     fontSize: '1.5rem',
     flex: 1
   },
@@ -430,8 +432,8 @@ const styles = {
   },
   btnSecondary: {
     background: 'white',
-    color: '#FF9933',
-    border: '2px solid #FF9933',
+    color: '#6078a4',
+    border: '2px solid #6078a4',
     padding: '0.75rem 1.5rem',
     borderRadius: '8px',
     fontWeight: 600,
@@ -439,7 +441,7 @@ const styles = {
     transition: 'all 0.3s ease'
   },
   btnSecondaryHover: {
-    background: '#FF9933',
+    background: '#6078a4',
     color: 'white'
   },
   childDetailGrid: {
@@ -454,7 +456,7 @@ const styles = {
     border: '1px solid #e9ecef'
   },
   detailSectionTitle: {
-    color: '#FF9933',
+    color: '#6078a4',
     fontSize: '1.2rem',
     marginBottom: '1rem',
     borderBottom: '2px solid #e9ecef',
@@ -489,7 +491,7 @@ const styles = {
     textAlign: 'left' as const
   },
   valueAvailable: {
-    color: '#28a745',
+    color: '#6078a4',
     fontWeight: 600
   },
   valueNotAvailable: {
@@ -638,7 +640,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                 style={styles.statCard}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 153, 51, 0.15)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)'
@@ -648,13 +650,13 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                 <div style={{...styles.statCardBefore, ...styles.statCardHealthy}}></div>
                 <h3 style={styles.statTitle}>सामान्य मामले</h3>
                 <p style={{...styles.statNumber, ...styles.statNumberHealthy}}>{normalCount}</p>
-                <span style={styles.statIcon}>✅</span>
+                <span style={styles.statIcon}>✓</span>
               </div>
               <div 
                 style={styles.statCard}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 153, 51, 0.15)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(220, 53, 69, 0.2)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)'
@@ -664,13 +666,13 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                 <div style={{...styles.statCardBefore, ...styles.statCardUnhealthy}}></div>
                 <h3 style={styles.statTitle}>संदिग्ध मामले</h3>
                 <p style={{...styles.statNumber, ...styles.statNumberUnhealthy}}>{suspiciousCount}</p>
-                <span style={styles.statIcon}>⚠️</span>
+                <span style={styles.statIcon}>⚠</span>
               </div>
               <div 
                 style={styles.statCard}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 153, 51, 0.15)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'translateY(0)'
@@ -680,7 +682,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                 <div style={{...styles.statCardBefore, ...styles.statCardTotal}}></div>
                 <h3 style={styles.statTitle}>कुल बच्चे</h3>
                 <p style={{...styles.statNumber, ...styles.statNumberTotal}}>{totalCount}</p>
-                <span style={styles.statIcon}>👶</span>
+                <span style={styles.statIcon}>◆</span>
               </div>
             </div>
 
@@ -698,7 +700,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                 e.target.style.borderColor = '#e9ecef'
               }}
             />
-            <span style={styles.searchIcon}>🔍</span>
+            <span style={styles.searchIcon}>⌕</span>
           </div>
           
           <div style={styles.filterSection}>
@@ -765,7 +767,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                   <td style={styles.tableCell}>
                     <div style={styles.childInfo}>
                       <div style={styles.childAvatar}>
-                        {report.gender === 'पुरुष' ? '👦' : '👧'}
+                        {report.gender === 'पुरुष' ? '♂' : '♀'}
                       </div>
                       <div>
                         <div style={styles.childName}>{report.childName || report.name}</div>
@@ -778,7 +780,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                   </td>
                   <td style={styles.tableCell}>
                     <div style={styles.parentInfo}>
-                      <div>पिता: {report.fatherName}</div>
+                      <div>{report.fatherName}</div>
                     </div>
                   </td>
                   <td style={styles.tableCell}>{report.schoolName}</td>
@@ -798,10 +800,10 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                         style={{...styles.btnSmall, ...styles.btnSmallPrimary}}
                         onClick={() => handleViewDetails(report)}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = '#e88822'
+                          e.currentTarget.style.background = '#2f4b80'
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.background = '#FF9933'
+                          e.currentTarget.style.background = '#6078a4'
                         }}
                       >
                         विस्तार देखें
@@ -832,7 +834,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
               onMouseLeave={(e) => {
                 if (currentPage !== 1) {
                   e.currentTarget.style.background = 'white'
-                  e.currentTarget.style.color = '#FF9933'
+                  e.currentTarget.style.color = '#6078a4'
                 }
               }}
             >
@@ -858,7 +860,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
               onMouseLeave={(e) => {
                 if (currentPage !== totalPages) {
                   e.currentTarget.style.background = 'white'
-                  e.currentTarget.style.color = '#FF9933'
+                  e.currentTarget.style.color = '#6078a4'
                 }
               }}
             >
@@ -992,7 +994,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'white'
-                  e.currentTarget.style.color = '#FF9933'
+                  e.currentTarget.style.color = '#6078a4'
                 }}
               >
                 बंद करें

@@ -62,10 +62,10 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     },
     pageHeader: {
-      background: 'linear-gradient(135deg, #FF9933 0%, #e88822 100%)',
+      background: 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)',
       color: 'white',
       padding: '2rem 0',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+      boxShadow: '0 4px 20px rgba(11, 15, 43, 0.2)',
       position: 'relative' as const,
       overflow: 'hidden' as const
     },
@@ -134,7 +134,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       left: 0,
       right: 0,
       height: '4px',
-      background: 'linear-gradient(90deg, #FF9933, #e88822)'
+      background: 'linear-gradient(90deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)'
     },
     statContent: {
       flex: 1
@@ -151,7 +151,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       fontSize: '2.5rem',
       fontWeight: 'bold',
       margin: 0,
-      color: '#FF9933',
+      color: '#6078a4',
       lineHeight: 1
     },
     statIcon: {
@@ -200,9 +200,9 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
     },
     searchInputFocus: {
       outline: 'none',
-      borderColor: '#FF9933',
+      borderColor: '#6078a4',
       background: 'white',
-      boxShadow: '0 0 0 4px rgba(255, 153, 51, 0.1)'
+      boxShadow: '0 0 0 4px rgba(96, 120, 164, 0.1)'
     },
     searchIcon: {
       position: 'absolute' as const,
@@ -218,7 +218,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       alignItems: 'center'
     },
     btnPrimary: {
-      background: 'linear-gradient(45deg, #FF9933, #e88822)',
+      background: 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)',
       color: 'white',
       border: 'none',
       padding: '1rem 1.5rem',
@@ -228,7 +228,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       transition: 'all 0.3s ease',
       whiteSpace: 'nowrap' as const,
       fontSize: '1rem',
-      boxShadow: '0 2px 8px rgba(255, 153, 51, 0.2)',
+      boxShadow: '0 2px 8px rgba(96, 120, 164, 0.3)',
       display: 'flex',
       alignItems: 'center',
       gap: '0.5rem'
@@ -282,7 +282,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       borderCollapse: 'collapse' as const
     },
     tableHeader: {
-      background: 'linear-gradient(135deg, #FF9933 0%, #e88822 100%)',
+      background: 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)',
       color: 'white',
       padding: '1.25rem 1rem',
       textAlign: 'left' as const,
@@ -337,9 +337,9 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
     },
     doctorSpecialization: {
       fontSize: '0.8rem',
-      color: '#FF9933',
+      color: '#6078a4',
       fontWeight: 500,
-      background: 'rgba(255, 153, 51, 0.1)',
+      background: 'rgba(96, 120, 164, 0.1)',
       padding: '0.125rem 0.5rem',
       borderRadius: '12px',
       display: 'inline-block'
@@ -399,7 +399,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
     },
     experienceYears: {
       fontWeight: 600,
-      color: '#FF9933',
+      color: '#6078a4',
       fontSize: '0.95rem'
     },
     statusBadge: {
@@ -443,7 +443,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       justifyContent: 'center'
     },
     btnSmallPrimary: {
-      background: '#FF9933',
+      background: '#6078a4',
       color: 'white'
     },
     btnSmallSecondary: {
@@ -505,7 +505,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
     },
     modalTitle: {
       margin: 0,
-      color: '#FF9933',
+      color: '#6078a4',
       fontSize: '1.75rem',
       fontWeight: 600
     },
@@ -563,8 +563,8 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
     },
     formInputFocus: {
       outline: 'none',
-      borderColor: '#FF9933',
-      boxShadow: '0 0 0 4px rgba(255, 153, 51, 0.1)'
+      borderColor: '#6078a4',
+      boxShadow: '0 0 0 4px rgba(96, 120, 164, 0.1)'
     },
     formHint: {
       color: '#6c757d',
@@ -581,8 +581,8 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
     },
     btnSecondary: {
       background: 'white',
-      color: '#FF9933',
-      border: '2px solid #FF9933',
+      color: '#6078a4',
+      border: '2px solid #6078a4',
       padding: '0.75rem 1.5rem',
       borderRadius: '10px',
       fontWeight: 600,
@@ -598,7 +598,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       marginBottom: '1rem'
     },
     detailTitle: {
-      color: '#FF9933',
+      color: '#6078a4',
       fontSize: '1.25rem',
       marginBottom: '1rem',
       borderBottom: '2px solid #e9ecef',
@@ -862,7 +862,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
               style={styles.statCard}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 153, 51, 0.15)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
@@ -898,7 +898,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
               style={styles.statCard}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 153, 51, 0.15)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
@@ -910,13 +910,13 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                 <h3 style={styles.statTitle}>कुल जांच</h3>
                 <p style={styles.statNumber}>{doctors.length > 0 ? doctors.reduce((sum: number, doc) => sum + doc.totalScreenings, 0) : 0}</p>
               </div>
-              <span style={styles.statIcon}>📊</span>
+              <span style={styles.statIcon}>◊</span>
             </div>
             <div 
               style={styles.statCard}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)'
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(255, 153, 51, 0.15)'
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)'
@@ -951,7 +951,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                     e.target.style.boxShadow = 'none'
                   }}
                 />
-                <span style={styles.searchIcon}>🔍</span>
+                <span style={styles.searchIcon}>⌕</span>
               </div>
             </div>
             
@@ -960,17 +960,17 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                 style={styles.btnPrimary} 
                 onClick={handleAddDoctor}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(45deg, #e88822, #d77711)'
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #2f4b80 0%, #0b0f2b 50%, #6078a4 100%)'
                   e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 153, 51, 0.3)'
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(96, 120, 164, 0.4)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'linear-gradient(45deg, #FF9933, #e88822)'
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)'
                   e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(255, 153, 51, 0.2)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(96, 120, 164, 0.3)'
                 }}
               >
-                <span style={styles.btnIcon}>➕</span>
+                <span style={styles.btnIcon}>+</span>
                 नया चिकित्सक जोड़ें
               </button>
             </div>
@@ -990,7 +990,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
           <div style={styles.tableContainer}>
             {filteredDoctors.length === 0 ? (
               <div style={styles.noResults}>
-                <div style={styles.noResultsIcon}>👩‍⚕️</div>
+                <div style={styles.noResultsIcon}>⚕️</div>
                 <h3 style={styles.noResultsTitle}>कोई चिकित्सक नहीं मिला</h3>
                 <p style={styles.noResultsText}>कृपया अपनी खोज बदलें या नया चिकित्सक जोड़ें</p>
               </div>
@@ -1039,7 +1039,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                         <td style={styles.tableCell}>
                           <div style={styles.contactInfo}>
                             <div style={styles.phone}>📞 {doctor.phone || doctor.phoneNo}</div>
-                            <div style={styles.screenings}>📋 {doctor.totalScreenings || 0} जांच</div>
+                            <div style={styles.screenings}>□ {doctor.totalScreenings || 0} जांच</div>
                           </div>
                         </td>
                         <td style={styles.tableCell}>
@@ -1060,17 +1060,17 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                               onClick={() => handleViewDoctor(doctor)}
                               title="विवरण देखें"
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#e88822'
+                                e.currentTarget.style.background = '#1e2872ff'
                                 e.currentTarget.style.transform = 'translateY(-2px)'
                                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(255, 153, 51, 0.3)'
                               }}
                               onMouseLeave={(e) => {
-                                e.currentTarget.style.background = '#FF9933'
+                                e.currentTarget.style.background = '#2f4b80'
                                 e.currentTarget.style.transform = 'translateY(0)'
                                 e.currentTarget.style.boxShadow = 'none'
                               }}
                             >
-                              👁️
+                              👁
                             </button>
                             <button 
                               style={{...styles.btnSmall, ...styles.btnSmallSecondary}}
@@ -1087,7 +1087,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                                 e.currentTarget.style.boxShadow = 'none'
                               }}
                             >
-                              ✏️
+                              ✎
                             </button>
                             <button 
                               style={{...styles.btnSmall, ...styles.btnSmallDanger}}
@@ -1104,7 +1104,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                                 e.currentTarget.style.boxShadow = 'none'
                               }}
                             >
-                              🗑️
+                              ×
                             </button>
                           </div>
                         </td>
@@ -1330,32 +1330,72 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
 
       {/* Doctor Detail Modal */}
       {selectedDoctor && !showAddForm && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h3>चिकित्सक विवरण</h3>
-              <button className="close-btn" onClick={() => setSelectedDoctor(null)}>×</button>
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalContent}>
+            <div style={styles.modalHeader}>
+              <h3 style={styles.modalTitle}>चिकित्सक विवरण</h3>
+              <button style={styles.closeBtn} onClick={() => setSelectedDoctor(null)}>×</button>
             </div>
-            <div className="modal-body">
-              <div className="doctor-detail">
-                <div className="detail-section">
-                  <h4>व्यक्तिगत जानकारी</h4>
-                  <p><strong>ID:</strong> {selectedDoctor.id}</p>
-                  <p><strong>चिकित्सक का नाम:</strong> {selectedDoctor.doctorName}</p>
-                  <p><strong>ईमेल:</strong> {selectedDoctor.email}</p>
-                  <p><strong>फोन नंबर:</strong> {selectedDoctor.phoneNo}</p>
-                  <p><strong>अनुभव:</strong> {selectedDoctor.experience} वर्ष</p>
+            <div style={styles.modalBody}>
+              <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
+                <div style={styles.detailSection}>
+                  <h4 style={styles.detailTitle}>व्यक्तिगत जानकारी</h4>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>ID:</span> {selectedDoctor.id}</div>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>चिकित्सक का नाम:</span> {selectedDoctor.name || selectedDoctor.doctorName}</div>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>ईमेल:</span> {selectedDoctor.email}</div>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>फोन नंबर:</span> {selectedDoctor.phone || selectedDoctor.phoneNo}</div>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>अनुभव:</span> {selectedDoctor.experience} वर्ष</div>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>विशेषज्ञता:</span> {selectedDoctor.specialization || 'सामान्य चिकित्सा'}</div>
                 </div>
-                <div className="detail-section">
-                  <h4>अस्पताल जानकारी</h4>
-                  <p><strong>अस्पताल का प्रकार:</strong> {selectedDoctor.hospitalType}</p>
-                  <p><strong>अस्पताल का नाम:</strong> {selectedDoctor.hospitalname}</p>
+                <div style={styles.detailSection}>
+                  <h4 style={styles.detailTitle}>अस्पताल जानकारी</h4>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>अस्पताल का प्रकार:</span> {selectedDoctor.hospitalType || 'जानकारी उपलब्ध नहीं'}</div>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>अस्पताल का नाम:</span> {selectedDoctor.hospital || selectedDoctor.hospitalname || 'जानकारी उपलब्ध नहीं'}</div>
+                </div>
+                <div style={styles.detailSection}>
+                  <h4 style={styles.detailTitle}>सांख्यिकी</h4>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>कुल जांच:</span> {selectedDoctor.totalScreenings || 0}</div>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>स्थिति:</span> 
+                    <span style={{
+                      ...styles.statusBadge,
+                      ...(selectedDoctor.status === 'सक्रिय' ? styles.statusActive : styles.statusInactive),
+                      marginLeft: '0.5rem'
+                    }}>
+                      {selectedDoctor.status || 'सक्रिय'}
+                    </span>
+                  </div>
+                  <div style={styles.detailText}><span style={styles.detailStrong}>जॉइनिंग तिथि:</span> {selectedDoctor.joiningDate ? new Date(selectedDoctor.joiningDate).toLocaleDateString('hi-IN') : 'जानकारी उपलब्ध नहीं'}</div>
                 </div>
               </div>
             </div>
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setSelectedDoctor(null)}>
+            <div style={styles.modalFooter}>
+              <button 
+                style={styles.btnSecondary} 
+                onClick={() => setSelectedDoctor(null)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#6078a4'
+                  e.currentTarget.style.color = 'white'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white'
+                  e.currentTarget.style.color = '#6078a4'
+                }}
+              >
                 बंद करें
+              </button>
+              <button 
+                style={styles.btnPrimary}
+                onClick={() => handleEditDoctor(selectedDoctor)}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #2f4b80 0%, #0b0f2b 50%, #6078a4 100%)'
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)'
+                  e.currentTarget.style.transform = 'translateY(0)'
+                }}
+              >
+                संपादित करें
               </button>
             </div>
           </div>
