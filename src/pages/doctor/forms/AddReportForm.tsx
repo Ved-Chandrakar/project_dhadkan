@@ -623,13 +623,6 @@ const AddReportForm = ({ user }: AddReportFormProps) => {
         ? `${serverUrl}dhadkan_add_child_report.php`
         : `${serverUrl}dhadkan_add_teacher_emp_report.php` // This handles both teacher and employee
       
-      console.log('Submitting to:', apiUrl)
-      console.log('JSON Data:', { 
-        ...jsonData, 
-        aadharPhoto: jsonData.aadharPhoto ? 'FILE_DATA_PRESENT' : null, 
-        shramikPhoto: jsonData.shramikPhoto ? 'FILE_DATA_PRESENT' : null 
-      })
-      
       // Submit to appropriate endpoint
       const response = await fetch(apiUrl, {
         method: 'POST',

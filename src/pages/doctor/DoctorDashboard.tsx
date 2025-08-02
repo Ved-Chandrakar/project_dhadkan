@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { User } from '../../App'
 import AddReportForm from './forms/AddReportForm'
 import DoctorProfile from './profile/DoctorProfile'
@@ -477,11 +477,8 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
       const response = await fetch(`${API_BASE_URL}?action=get_doctor_stats&doctor_id=${user.id}`)
       const data = await response.json()
       
-      console.log('Doctor Stats Response:', data) // Debug log
-      
       if (data.success) {
         setStats(data.data)
-        console.log('Stats set:', data.data) // Debug log
       } else {
         setError(data.message || 'Failed to fetch statistics')
       }
@@ -500,11 +497,8 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
       const response = await fetch(`${API_BASE_URL}?action=get_children_list&doctor_id=${user.id}&limit=50`)
       const data = await response.json()
       
-      console.log('Children List Response:', data) // Debug log
-      
       if (data.success) {
         setChildrenList(data.data.children || [])
-        console.log('Children List set:', data.data.children) // Debug log
       } else {
         setError(data.message || 'Failed to fetch children list')
       }
@@ -523,11 +517,8 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
       const response = await fetch(`${API_BASE_URL}?action=get_teacher_employee_list&doctor_id=${user.id}&limit=50`)
       const data = await response.json()
       
-      console.log('Staff List Response:', data) // Debug log
-      
       if (data.success) {
         setStaffList(data.data.staff || [])
-        console.log('Staff List set:', data.data.staff) // Debug log
       } else {
         console.error('Failed to fetch staff list:', data.message)
       }
@@ -541,7 +532,6 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
   // Load data when component mounts or when switching to dashboard
   useEffect(() => {
     if (activeTab === 'dashboard') {
-      console.log('Loading dashboard data for user:', user) // Debug log
       fetchDoctorStats()
       fetchChildrenList()
       fetchStaffList()

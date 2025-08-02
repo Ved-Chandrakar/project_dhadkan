@@ -1,6 +1,6 @@
 // Admin Pages
 export { default as DoctorManagement } from './admin/doctors/DoctorManagement'
-export { default as ChildrenReports } from './admin/children/ChildrenReports'
+export { default as ChildrenStaffReports } from './admin/reports/Reports'
 
 // Doctor Pages  
 export { default as AddReportForm } from './doctor/forms/AddReportForm'

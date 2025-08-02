@@ -42,17 +42,6 @@ interface DashboardStats {
   weeklyGrowth: number
 }
 
-interface Child {
-  id: number
-  name: string
-  age: number
-  parentName: string
-  phone: string
-  screeningDate: string
-  status: 'स्वस्थ' | 'असामान्य'
-  doctorName: string
-}
-
 const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
   const [activeTab, setActiveTab] = useState('dashboard')
   const [isLoading, setIsLoading] = useState(true)
@@ -83,7 +72,6 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
     suspiciousPercentage: 0,
     weeklyGrowth: 0
   })
-  const [children, setChildren] = useState<Child[]>([])
 
   // Check if screen is mobile
   const isMobile = window.innerWidth <= 768
@@ -578,18 +566,6 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
           weeklyGrowth: data.weeklyGrowth || 0
         })
         
-        const recentChildren = data.recentChildren || []
-        setChildren(recentChildren.map((child: any) => ({
-          id: child.id,
-          name: child.name,
-          age: child.age,
-          parentName: child.parentName,
-          phone: child.phone,
-          screeningDate: child.screeningDate,
-          status: child.status,
-          doctorName: child.doctorName
-        })))
-        
       } else {
         setError(result.message || 'API से डेटा लोड करने में त्रुटि')
         console.error('API Error:', result.message)
@@ -608,10 +584,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
   // Fetch data on component mount
   useEffect(() => {
     fetchDashboardData()
-  }, [])
-
-  const healthyChildren = children.filter(child => child.status === 'स्वस्थ').length
-  const unhealthyChildren = children.filter(child => child.status === 'असामान्य').length
+    }, [])
 
   // Function to refresh dashboard data
   const refreshDashboard = () => {
@@ -641,7 +614,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
               onClick={refreshDashboard}
               onMouseEnter={(e) => Object.assign(e.currentTarget.style, styles.refreshBtnHover)}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'linear-gradient(45deg, #FF9933, #e88822)'
+                e.currentTarget.style.background = 'linear-gradient(90deg, #6078a4 , #2f4b80 , #0b0f2b )'
                 e.currentTarget.style.transform = 'translateY(0)'
                 e.currentTarget.style.boxShadow = 'none'
               }}
@@ -673,7 +646,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
               }}
               onMouseLeave={(e) => {
                 if (!isLoading) {
-                  e.currentTarget.style.background = 'linear-gradient(45deg, #FF9933, #e88822)'
+                  e.currentTarget.style.background = 'linear-gradient(90deg, #6078a4 , #2f4b80 , #0b0f2b )'
                   e.currentTarget.style.transform = 'translateY(0)'
                   e.currentTarget.style.boxShadow = 'none'
                 }

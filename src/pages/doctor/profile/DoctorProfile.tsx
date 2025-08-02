@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import serverUrl from '../../server'
 
 interface DoctorProfileProps {
@@ -27,7 +27,7 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ user }) => {
   const [error, setError] = useState<string | null>(null)
 
   // Add CSS animations
-  React.useEffect(() => {
+  useEffect(() => {
     const style = document.createElement('style')
     style.textContent = `
       @keyframes spin {
