@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { User } from '../../App'
 import DoctorManagement from './doctors/DoctorManagement'
-import ChildrenReports from './children/ChildrenReports'
+import ChildrenStaffReports from './reports/Reports'
 import serverUrl from '../server'
 
 interface AdminDashboardProps {
@@ -16,9 +16,22 @@ interface MenuItem {
 }
 
 interface DashboardStats {
+  // Children stats
   totalChildrenScreened: number
-  positiveCases: number
-  healthyCases: number
+  childrenPositiveCases: number
+  childrenHealthyCases: number
+  // Teacher stats
+  totalTeachersScreened: number
+  teachersPositiveCases: number
+  teachersHealthyCases: number
+  // Employee stats
+  totalEmployeesScreened: number
+  employeesPositiveCases: number
+  employeesHealthyCases: number
+  // Combined stats
+  totalScreenings: number
+  totalPositiveCases: number
+  totalHealthyCases: number
   todayScreenings: number
   totalDoctors: number
   activeDoctors: number
@@ -45,9 +58,22 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    // Children stats
     totalChildrenScreened: 0,
-    positiveCases: 0,
-    healthyCases: 0,
+    childrenPositiveCases: 0,
+    childrenHealthyCases: 0,
+    // Teacher stats
+    totalTeachersScreened: 0,
+    teachersPositiveCases: 0,
+    teachersHealthyCases: 0,
+    // Employee stats
+    totalEmployeesScreened: 0,
+    employeesPositiveCases: 0,
+    employeesHealthyCases: 0,
+    // Combined stats
+    totalScreenings: 0,
+    totalPositiveCases: 0,
+    totalHealthyCases: 0,
     todayScreenings: 0,
     totalDoctors: 0,
     activeDoctors: 0,
@@ -401,20 +427,21 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       opacity: 0.8
     },
     comparisonChart: {
-      padding: '1rem 0'
+      padding: '2rem 0 1rem 0',
+      marginTop: '1rem'
     },
     chartContainer: {
       display: 'flex',
       alignItems: 'center',
       marginBottom: '1rem',
-      minHeight: '150px'
+      minHeight: '170px'
     },
     yAxis: {
       display: 'flex',
       flexDirection: 'column' as const,
       justifyContent: 'space-around',
       marginRight: '1rem',
-      height: '120px'
+      height: '140px'
     },
     yLabel: {
       fontSize: '0.8rem',
@@ -428,7 +455,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       display: 'flex',
       flexDirection: 'column' as const,
       justifyContent: 'space-around',
-      height: '120px'
+      height: '160px'
     },
     barGroup: {
       display: 'flex',
@@ -436,7 +463,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       margin: '0.5rem 0'
     },
     bar: {
-      height: '30px',
+      height: '65px',
       borderRadius: '4px',
       display: 'flex',
       alignItems: 'center',
@@ -447,11 +474,11 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       marginRight: '0.5rem'
     },
     barSuspected: {
-      background: 'linear-gradient(90deg, #2f4b80, #0b0f2b)',
+      background: 'linear-gradient(90deg, #dc3545, #c82333)',
       color: 'white'
     },
     barHealthy: {
-      background: 'linear-gradient(90deg, #6078a4, #2f4b80)',
+      background: 'linear-gradient(90deg, #28a745, #218838)',
       color: 'white'
     },
     barValue: {
@@ -481,10 +508,10 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       borderRadius: '2px'
     },
     summaryColorSuspected: {
-      background: '#2f4b80'
+      background: '#dc3545'
     },
     summaryColorHealthy: {
-      background: '#6078a4'
+      background: '#28a745'
     },
     noDataMessage: {
       textAlign: 'center' as const,
@@ -496,7 +523,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
   const menuItems: MenuItem[] = [
     { id: 'dashboard', label: 'डैशबोर्ड', icon: '◊' },
     { id: 'doctors', label: 'चिकित्सक प्रबंधन', icon: '⚚' },
-    { id: 'childReports', label: 'बच्चों की रिपोर्ट', icon: '◆' }
+    { id: 'childReports', label: 'बच्चों एवं स्टाफ की रिपोर्ट', icon: '◆' }
   ]
 
   // Function to fetch dashboard data
@@ -525,9 +552,22 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
         const data = result.data
         
         setDashboardStats({
+          // Children stats
           totalChildrenScreened: data.totalChildrenScreened || 0,
-          positiveCases: data.positiveCases || 0,
-          healthyCases: data.healthyCases || 0,
+          childrenPositiveCases: data.childrenPositiveCases || 0,
+          childrenHealthyCases: data.childrenHealthyCases || 0,
+          // Teacher stats
+          totalTeachersScreened: data.totalTeachersScreened || 0,
+          teachersPositiveCases: data.teachersPositiveCases || 0,
+          teachersHealthyCases: data.teachersHealthyCases || 0,
+          // Employee stats
+          totalEmployeesScreened: data.totalEmployeesScreened || 0,
+          employeesPositiveCases: data.employeesPositiveCases || 0,
+          employeesHealthyCases: data.employeesHealthyCases || 0,
+          // Combined stats
+          totalScreenings: data.totalScreenings || 0,
+          totalPositiveCases: data.totalPositiveCases || 0,
+          totalHealthyCases: data.totalHealthyCases || 0,
           todayScreenings: data.todayScreenings || 0,
           totalDoctors: data.totalDoctors || 0,
           activeDoctors: data.activeDoctors || 0,
@@ -590,7 +630,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       )
     }
 
-    if (error && dashboardStats.totalChildrenScreened === 0) {
+    if (error && dashboardStats.totalScreenings === 0) {
       return (
         <div style={styles.errorContainer}>
           <div style={styles.errorContent}>
@@ -618,7 +658,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
         <div style={styles.contentHeader}>
           <div style={styles.headerLeft}>
             <h3 style={styles.contentHeaderH3}>डैशबोर्ड अवलोकन</h3>
-            <p style={styles.contentHeaderP}>बच्चों की स्वास्थ्य जांच प्रणाली</p>
+            <p style={styles.contentHeaderP}>बच्चों, शिक्षकों और कर्मचारियों की स्वास्थ्य जांच प्रणाली</p>
           </div>
           <div style={styles.headerRight}>
             <button 
@@ -654,14 +694,36 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
         <div style={styles.statsGrid}>
           <div style={styles.statCard}>
             <div style={styles.statCardBefore}></div>
-            <h4 style={styles.statCardH4}>कुल जांच किए गए बच्चे</h4>
-            <p style={styles.statNumber}>{dashboardStats.totalChildrenScreened}</p>
-            <small style={styles.statSubtitle}>स्वस्थ: {dashboardStats.healthyCases} | संदिग्ध: {dashboardStats.positiveCases}</small>
+            <h4 style={styles.statCardH4}>कुल जांच (सभी)</h4>
+            <p style={styles.statNumber}>{dashboardStats.totalScreenings}</p>
+            <small style={styles.statSubtitle}>स्वस्थ: {dashboardStats.totalHealthyCases} | संदिग्ध: {dashboardStats.totalPositiveCases}</small>
           </div>
           <div style={styles.statCard}>
             <div style={styles.statCardBefore}></div>
-            <h4 style={styles.statCardH4}>बच्चों में संदिग्ध मामले</h4>
-            <p style={styles.statNumber}>{dashboardStats.positiveCases}</p>
+            <h4 style={styles.statCardH4}>बच्चों की जांच</h4>
+            <p style={styles.statNumber}>{dashboardStats.totalChildrenScreened}</p>
+            <small style={styles.statSubtitle}>स्वस्थ: {dashboardStats.childrenHealthyCases} | संदिग्ध: {dashboardStats.childrenPositiveCases}</small>
+          </div>
+          <div style={styles.statCard}>
+            <div style={styles.statCardBefore}></div>
+            <h4 style={styles.statCardH4}>शिक्षकों की जांच</h4>
+            <p style={styles.statNumber}>{dashboardStats.totalTeachersScreened}</p>
+            <small style={styles.statSubtitle}>स्वस्थ: {dashboardStats.teachersHealthyCases} | संदिग्ध: {dashboardStats.teachersPositiveCases}</small>
+          </div>
+          <div style={styles.statCard}>
+            <div style={styles.statCardBefore}></div>
+            <h4 style={styles.statCardH4}>कर्मचारियों की जांच</h4>
+            <p style={styles.statNumber}>{dashboardStats.totalEmployeesScreened}</p>
+            <small style={styles.statSubtitle}>स्वस्थ: {dashboardStats.employeesHealthyCases} | संदिग्ध: {dashboardStats.employeesPositiveCases}</small>
+          </div>
+        </div>
+
+        {/* Additional Stats Row */}
+        <div style={styles.statsGrid}>
+          <div style={styles.statCard}>
+            <div style={styles.statCardBefore}></div>
+            <h4 style={styles.statCardH4}>कुल संदिग्ध मामले</h4>
+            <p style={styles.statNumber}>{dashboardStats.totalPositiveCases}</p>
             <small style={styles.statSubtitle}>{dashboardStats.suspiciousPercentage.toFixed(1)}% कुल जांच का</small>
           </div>
           <div style={styles.statCard}>
@@ -676,72 +738,68 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
             <p style={styles.statNumber}>{dashboardStats.totalDoctors}</p>
             <small style={styles.statSubtitle}>सक्रिय: {dashboardStats.activeDoctors}</small>
           </div>
-        </div>
-
-        {/* Additional Stats Row */}
-        <div style={styles.statsGrid}>
-          <div style={styles.statCard}>
-            <div style={styles.statCardBefore}></div>
-            <h4 style={styles.statCardH4}>इस महीने की जांच</h4>
-            <p style={styles.statNumber}>{dashboardStats.thisMonthScreenings}</p>
-            <small style={styles.statSubtitle}>
-              {dashboardStats.weeklyGrowth >= 0 ? '↗' : '↘'} 
-              {Math.abs(dashboardStats.weeklyGrowth).toFixed(1)}% साप्ताहिक वृद्धि
-            </small>
-          </div>
           <div style={styles.statCard}>
             <div style={styles.statCardBefore}></div>
             <h4 style={styles.statCardH4}>स्वस्थता दर</h4>
             <p style={styles.statNumber}>{dashboardStats.healthyPercentage.toFixed(1)}%</p>
-            <small style={styles.statSubtitle}>स्वस्थ बच्चे: {dashboardStats.healthyCases}</small>
-          </div>
-          <div style={styles.statCard}>
-            <div style={styles.statCardBefore}></div>
-            <h4 style={styles.statCardH4}>इस सप्ताह</h4>
-            <p style={styles.statNumber}>{dashboardStats.thisWeekScreenings}</p>
-            <small style={styles.statSubtitle}>
-              {dashboardStats.weeklyGrowth >= 0 ? 'वृद्धि' : 'कमी'}: {Math.abs(dashboardStats.weeklyGrowth).toFixed(1)}%
-            </small>
-          </div>
-          <div style={styles.statCard}>
-            <div style={styles.statCardBefore}></div>
-            <h4 style={styles.statCardH4}>औसत दैनिक जांच</h4>
-            <p style={styles.statNumber}>{Math.round(dashboardStats.thisWeekScreenings / 7)}</p>
-            <small style={styles.statSubtitle}>पिछले 7 दिनों का औसत</small>
+            <small style={styles.statSubtitle}>स्वस्थ: {dashboardStats.totalHealthyCases}</small>
           </div>
         </div>
 
         <div style={styles.overviewGrid}>
           <div style={styles.overviewCard}>
-            <h4 style={styles.overviewCardH4}>मामलों की तुलना</h4>
-            {children.length > 0 ? (
+            <h4 style={styles.overviewCardH4}>
+              मामलों की तुलना
+              <br />
+              <small style={{fontSize: '0.85rem', fontWeight: 400, color: '#6c757d', marginTop: '0.25rem'}}>
+                (बच्चे + शिक्षक + कर्मचारी)
+              </small>
+            </h4>
+            {dashboardStats.totalScreenings > 0 ? (
               <div style={styles.comparisonChart}>
                 <div style={styles.chartContainer}>
                   <div style={styles.yAxis}>
-                    <div style={styles.yLabel}>संदिग्ध मामले</div>
-                    <div style={styles.yLabel}>स्वस्थ मामले</div>
+                    <div style={styles.yLabel}>संदिग्ध</div>
+                    <div style={styles.yLabel}>स्वस्थ</div>
                   </div>
                   <div style={styles.chartBars}>
                     <div style={styles.barGroup}>
-                      <div style={{...styles.bar, ...styles.barSuspected, width: `${(unhealthyChildren / Math.max(healthyChildren, unhealthyChildren)) * 100}%`}}>
-                        <span style={styles.barValue}>{unhealthyChildren}</span>
+                      <div style={{
+                        ...styles.bar, 
+                        ...styles.barSuspected, 
+                        width: `${Math.max((dashboardStats.totalPositiveCases / Math.max(dashboardStats.totalHealthyCases, dashboardStats.totalPositiveCases)) * 100, 15)}%`
+                      }}>
+                        <span style={styles.barValue}>{dashboardStats.totalPositiveCases}</span>
                       </div>
                     </div>
                     <div style={styles.barGroup}>
-                      <div style={{...styles.bar, ...styles.barHealthy, width: `${(healthyChildren / Math.max(healthyChildren, unhealthyChildren)) * 100}%`}}>
-                        <span style={styles.barValue}>{healthyChildren}</span>
+                      <div style={{
+                        ...styles.bar, 
+                        ...styles.barHealthy, 
+                        width: `${Math.max((dashboardStats.totalHealthyCases / Math.max(dashboardStats.totalHealthyCases, dashboardStats.totalPositiveCases)) * 100, 15)}%`
+                      }}>
+                        <span style={styles.barValue}>{dashboardStats.totalHealthyCases}</span>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div style={styles.chartSummary}>
+                <div style={{
+                  ...styles.chartSummary,
+                  background: '#f8f9fa',
+                  padding: '1rem',
+                  borderRadius: '8px',
+                  marginTop: '1rem'
+                }}>
                   <div style={styles.summaryItem}>
                     <span style={{...styles.summaryColor, ...styles.summaryColorSuspected}}></span>
-                    <span>संदिग्ध: {unhealthyChildren} ({Math.round((unhealthyChildren / children.length) * 100)}%)</span>
+                    <span>संदिग्ध: <strong>{dashboardStats.totalPositiveCases}</strong> ({dashboardStats.suspiciousPercentage.toFixed(1)}%)</span>
                   </div>
                   <div style={styles.summaryItem}>
                     <span style={{...styles.summaryColor, ...styles.summaryColorHealthy}}></span>
-                    <span>स्वस्थ: {healthyChildren} ({Math.round((healthyChildren / children.length) * 100)}%)</span>
+                    <span>स्वस्थ: <strong>{dashboardStats.totalHealthyCases}</strong> ({dashboardStats.healthyPercentage.toFixed(1)}%)</span>
+                  </div>
+                  <div style={{...styles.summaryItem, justifyContent: 'center', marginTop: '0.5rem', fontSize: '0.9rem', color: '#495057'}}>
+                    <span>कुल जांच: <strong>{dashboardStats.totalScreenings}</strong></span>
                   </div>
                 </div>
               </div>
@@ -753,20 +811,34 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
           </div>
 
           <div style={styles.overviewCard}>
-            <h4 style={styles.overviewCardH4}>स्वास्थ्य सांख्यिकी</h4>
-            {children.length > 0 ? (
+            <h4 style={styles.overviewCardH4}>
+              स्वास्थ्य सांख्यिकी
+              <br />
+              <small style={{fontSize: '0.85rem', fontWeight: 400, color: '#6c757d', marginTop: '0.25rem'}}>
+                (बच्चे + शिक्षक + कर्मचारी)
+              </small>
+            </h4>
+            {dashboardStats.totalScreenings > 0 ? (
               <div style={styles.healthStats}>
                 <div style={styles.healthStat}>
-                  <span style={styles.healthLabel}>स्वस्थ मामले</span>
-                  <span style={{...styles.healthValue, ...styles.healthValueHealthy}}>{healthyChildren}</span>
+                  <span style={styles.healthLabel}>कुल जांच</span>
+                  <span style={{...styles.healthValue}}>{dashboardStats.totalScreenings}</span>
                 </div>
                 <div style={styles.healthStat}>
-                  <span style={styles.healthLabel}>असामान्य मामले</span>
-                  <span style={{...styles.healthValue, ...styles.healthValueUnhealthy}}>{unhealthyChildren}</span>
+                  <span style={styles.healthLabel}>स्वस्थ मामले</span>
+                  <span style={{...styles.healthValue, ...styles.healthValueHealthy}}>{dashboardStats.totalHealthyCases}</span>
+                </div>
+                <div style={styles.healthStat}>
+                  <span style={styles.healthLabel}>संदिग्ध मामले</span>
+                  <span style={{...styles.healthValue, ...styles.healthValueUnhealthy}}>{dashboardStats.totalPositiveCases}</span>
                 </div>
                 <div style={styles.healthStat}>
                   <span style={styles.healthLabel}>स्वस्थता दर</span>
-                  <span style={styles.healthValue}>{Math.round((healthyChildren / children.length) * 100)}%</span>
+                  <span style={{...styles.healthValue, color: '#28a745'}}>{dashboardStats.healthyPercentage.toFixed(1)}%</span>
+                </div>
+                <div style={styles.healthStat}>
+                  <span style={styles.healthLabel}>संदिग्ध दर</span>
+                  <span style={{...styles.healthValue, ...styles.healthValueUnhealthy}}>{dashboardStats.suspiciousPercentage.toFixed(1)}%</span>
                 </div>
               </div>
             ) : (
@@ -787,7 +859,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       case 'doctors':
         return <DoctorManagement user={user} onBack={() => setActiveTab('dashboard')} />
       case 'childReports':
-        return <ChildrenReports user={user} onBack={() => setActiveTab('dashboard')} />
+        return <ChildrenStaffReports user={user} onBack={() => setActiveTab('dashboard')} />
       default:
         return renderDashboard()
     }
@@ -830,6 +902,17 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
         </nav>
 
         <div style={styles.sidebarFooter}>
+          <div style={{
+            textAlign: 'center' as const,
+            padding: '0.5rem',
+            marginBottom: '1rem',
+            fontSize: '0.75rem',
+            color: 'rgba(255,255,255,0.6)',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
+            paddingBottom: '1rem'
+          }}>
+            Version: 1.0.0
+          </div>
           <div style={styles.userProfile}>
             <p style={styles.userName}>👤 {user.name}</p>
             <p style={styles.userEmail}>{user.email}</p>

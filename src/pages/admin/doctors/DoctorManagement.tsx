@@ -43,6 +43,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
   const [showAddForm, setShowAddForm] = useState(false)
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
   const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [totalScreenings, setTotalScreenings] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<DoctorFormData>({
     doctorName: '',
@@ -683,6 +684,39 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
     fetchDoctors()
   }, [])
 
+  // Fetch total screenings from all tables
+  useEffect(() => {
+    const fetchTotalScreenings = async () => {
+      try {
+        const response = await fetch(`${serverUrl}dhadkan_admin_dashboard.php`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'omit'
+        })
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        
+        const result = await response.json()
+        
+        if (result.success && result.data) {
+          setTotalScreenings(result.data.totalScreenings || 0)
+        } else {
+          console.error('Error fetching total screenings:', result.message)
+        }
+      } catch (error) {
+        console.error('Error fetching total screenings:', error)
+      }
+    }
+
+    fetchTotalScreenings()
+  }, [])
+
   const filteredDoctors = doctors.filter(doctor => {
     const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          doctor.hospital.toLowerCase().includes(searchTerm.toLowerCase())
@@ -738,6 +772,13 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
           const fetchResult = await fetchResponse.json()
           if (fetchResult.success) {
             setDoctors(fetchResult.data || [])
+          }
+
+          // Refresh total screenings
+          const screeningsResponse = await fetch(`${serverUrl}dhadkan_admin_dashboard.php`)
+          const screeningsResult = await screeningsResponse.json()
+          if (screeningsResult.success && screeningsResult.data) {
+            setTotalScreenings(screeningsResult.data.totalScreenings || 0)
           }
         } else {
           alert('त्रुटि: ' + result.message)
@@ -829,6 +870,13 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
         if (fetchResult.success) {
           setDoctors(fetchResult.data || [])
         }
+
+        // Refresh total screenings
+        const screeningsResponse = await fetch(`${serverUrl}dhadkan_admin_dashboard.php`)
+        const screeningsResult = await screeningsResponse.json()
+        if (screeningsResult.success && screeningsResult.data) {
+          setTotalScreenings(screeningsResult.data.totalScreenings || 0)
+        }
       } else {
         alert('त्रुटि: ' + result.message)
       }
@@ -907,8 +955,8 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
             >
               <div style={styles.statCardBefore}></div>
               <div style={styles.statContent}>
-                <h3 style={styles.statTitle}>कुल जांच</h3>
-                <p style={styles.statNumber}>{doctors.length > 0 ? doctors.reduce((sum: number, doc) => sum + doc.totalScreenings, 0) : 0}</p>
+                <h3 style={styles.statTitle}>कुल जांच (सभी)</h3>
+                <p style={styles.statNumber}>{totalScreenings}</p>
               </div>
               <span style={styles.statIcon}>◊</span>
             </div>

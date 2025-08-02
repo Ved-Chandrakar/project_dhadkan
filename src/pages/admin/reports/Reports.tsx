@@ -40,6 +40,27 @@ interface ChildReport {
   healthStatus: 'स्वस्थ' | 'असामान्य' | 'जांच में'
 }
 
+interface StaffReport {
+  id: number
+  dr_id: number
+  name: string
+  age: number
+  gender: 'पुरुष' | 'महिला'
+  mobileNo: string
+  schoolName: string
+  haveAadhar: 'yes' | 'no'
+  haveShramik: 'yes' | 'no'
+  aadharPhoto: string | null
+  shramikPhoto: string | null
+  heartStatus: 'संदिग्ध' | 'संदेह नहीं'
+  notes: string | null
+  screeningDate: string
+  staffType: 'शिक्षक' | 'कर्मचारी'
+  doctorName: string
+  hospitalName: string
+  hospitalType: string
+}
+
 const styles = {
   childrenReports: {
     minHeight: '100vh',
@@ -500,13 +521,16 @@ const styles = {
   }
 }
 
-const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
+const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
   const [filterDoctor, setFilterDoctor] = useState('')
   const [selectedChild, setSelectedChild] = useState<ChildReport | null>(null)
+  const [selectedStaff, setSelectedStaff] = useState<StaffReport | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
+  const [staffCurrentPage, setStaffCurrentPage] = useState(1)
   const [reports, setReports] = useState<ChildReport[]>([])
+  const [staffReports, setStaffReports] = useState<StaffReport[]>([])
   const [doctors, setDoctors] = useState<{ doctorId: number; doctorName: string; hospitalName: string; totalScreenings: number }[]>([])
   const [stats, setStats] = useState({
     totalChildren: 0,
@@ -515,12 +539,26 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
     totalDoctors: 0,
     totalSchools: 0
   })
+  const [staffStats, setStaffStats] = useState({
+    totalStaff: 0,
+    totalTeachers: 0,
+    totalEmployees: 0,
+    normalStaff: 0,
+    suspiciousStaff: 0,
+    suspiciousPercentage: 0
+  })
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
     totalRecords: 0
   })
+  const [staffPagination, setStaffPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalRecords: 0
+  })
   const [isLoading, setIsLoading] = useState(true)
+  const [isStaffLoading, setIsStaffLoading] = useState(true)
   const itemsPerPage = 10
 
   // ESC key functionality for going back
@@ -542,7 +580,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
         setIsLoading(true)
         
         // Fetch reports
-        const reportsResponse = await fetch(`${serverUrl}dhadkan_children_reports.php?action=getReports&page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
+        const reportsResponse = await fetch(`${serverUrl}dhadkan_children_staff_reports.php?action=getReports&page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -565,7 +603,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
         }
 
         // Fetch stats
-        const statsResponse = await fetch(`${serverUrl}dhadkan_children_reports.php?action=getStats`, {
+        const statsResponse = await fetch(`${serverUrl}dhadkan_children_staff_reports.php?action=getStats`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -600,6 +638,70 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
     fetchData()
   }, [currentPage, searchTerm, filterStatus, filterDoctor])
 
+  // Fetch staff reports data
+  useEffect(() => {
+    const fetchStaffData = async () => {
+      try {
+        setIsStaffLoading(true)
+        
+        // Fetch staff reports
+        const staffResponse = await fetch(`${serverUrl}dhadkan_children_staff_reports.php?action=getStaffReports&page=${staffCurrentPage}&limit=${itemsPerPage}&search=${searchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'omit'
+        })
+        
+        if (staffResponse.ok) {
+          const staffData = await staffResponse.json()
+          if (staffData.success) {
+            setStaffReports(staffData.data || [])
+            setStaffPagination(staffData.pagination || {
+              currentPage: 1,
+              totalPages: 1,
+              totalRecords: 0
+            })
+          }
+        }
+
+        // Fetch staff stats
+        const staffStatsResponse = await fetch(`${serverUrl}dhadkan_children_staff_reports.php?action=getStaffStats`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          mode: 'cors',
+          credentials: 'omit'
+        })
+        
+        if (staffStatsResponse.ok) {
+          const staffStatsData = await staffStatsResponse.json()
+          if (staffStatsData.success) {
+            setStaffStats(staffStatsData.stats || {
+              totalStaff: 0,
+              totalTeachers: 0,
+              totalEmployees: 0,
+              normalStaff: 0,
+              suspiciousStaff: 0,
+              suspiciousPercentage: 0
+            })
+          }
+        }
+        
+      } catch (error) {
+        console.error('Error fetching staff data:', error)
+      } finally {
+        setIsStaffLoading(false)
+      }
+    }
+
+    fetchStaffData()
+  }, [staffCurrentPage, searchTerm, filterStatus, filterDoctor])
+
   const healthStatuses = ['संदेह नहीं', 'संदिग्ध']
 
   const totalPages = pagination.totalPages
@@ -613,13 +715,17 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
     setSelectedChild(report)
   }
 
+  const handleViewStaffDetails = (staff: StaffReport) => {
+    setSelectedStaff(staff)
+  }
+
   return (
     <div style={styles.childrenReports}>
       <div style={styles.pageHeader}>
         <div style={styles.headerContent}>
           <div>
-            <h1 style={styles.headerText.h1}>बच्चों की रिपोर्ट</h1>
-            <p style={styles.headerText.p}>सभी बच्चों की स्वास्थ्य जांच रिपोर्ट और विवरण - {user.name}</p>
+            <h1 style={styles.headerText.h1}>रिपोर्ट</h1>
+            <p style={styles.headerText.p}>सभी बच्चों एवं स्टाफ की स्वास्थ्य जांच रिपोर्ट और विवरण - {user.name}</p>
           </div>
         </div>
       </div>
@@ -634,40 +740,8 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
           </div>
         ) : (
           <>
-            {/* Stats Cards */}
+            {/* Children Stats Cards - First Row */}
             <div style={styles.statsRow}>
-              <div 
-                style={styles.statCard}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
-                }}
-              >
-                <div style={{...styles.statCardBefore, ...styles.statCardHealthy}}></div>
-                <h3 style={styles.statTitle}>सामान्य मामले</h3>
-                <p style={{...styles.statNumber, ...styles.statNumberHealthy}}>{normalCount}</p>
-                <span style={styles.statIcon}>✓</span>
-              </div>
-              <div 
-                style={styles.statCard}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)'
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(220, 53, 69, 0.2)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
-                }}
-              >
-                <div style={{...styles.statCardBefore, ...styles.statCardUnhealthy}}></div>
-                <h3 style={styles.statTitle}>संदिग्ध मामले</h3>
-                <p style={{...styles.statNumber, ...styles.statNumberUnhealthy}}>{suspiciousCount}</p>
-                <span style={styles.statIcon}>⚠</span>
-              </div>
               <div 
                 style={styles.statCard}
                 onMouseEnter={(e) => {
@@ -683,6 +757,90 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
                 <h3 style={styles.statTitle}>कुल बच्चे</h3>
                 <p style={{...styles.statNumber, ...styles.statNumberTotal}}>{totalCount}</p>
                 <span style={styles.statIcon}>◆</span>
+              </div>
+              <div 
+                style={styles.statCard}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+                }}
+              >
+                <div style={{...styles.statCardBefore, ...styles.statCardHealthy}}></div>
+                <h3 style={styles.statTitle}>बच्चों में सामान्य मामले</h3>
+                <p style={{...styles.statNumber, ...styles.statNumberHealthy}}>{normalCount}</p>
+                <span style={styles.statIcon}>✓</span>
+              </div>
+              <div 
+                style={styles.statCard}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(220, 53, 69, 0.2)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+                }}
+              >
+                <div style={{...styles.statCardBefore, ...styles.statCardUnhealthy}}></div>
+                <h3 style={styles.statTitle}>बच्चों में संदिग्ध मामले</h3>
+                <p style={{...styles.statNumber, ...styles.statNumberUnhealthy}}>{suspiciousCount}</p>
+                <span style={styles.statIcon}>⚠</span>
+              </div>
+            </div>
+
+            {/* Staff Stats Cards - Second Row */}
+            <div style={styles.statsRow}>
+              <div 
+                style={styles.statCard}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+                }}
+              >
+                <div style={{...styles.statCardBefore, ...styles.statCardHealthy}}></div>
+                <h3 style={styles.statTitle}>शिक्षक</h3>
+                <p style={{...styles.statNumber, ...styles.statNumberHealthy}}>{staffStats.totalTeachers}</p>
+                <span style={styles.statIcon}>🎓</span>
+              </div>
+              <div 
+                style={styles.statCard}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 120, 164, 0.2)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+                }}
+              >
+                <div style={{...styles.statCardBefore, ...styles.statCardHealthy}}></div>
+                <h3 style={styles.statTitle}>कर्मचारी</h3>
+                <p style={{...styles.statNumber, ...styles.statNumberHealthy}}>{staffStats.totalEmployees}</p>
+                <span style={styles.statIcon}>👷</span>
+              </div>
+              <div 
+                style={styles.statCard}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(220, 53, 69, 0.2)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)'
+                }}
+              >
+                <div style={{...styles.statCardBefore, ...styles.statCardUnhealthy}}></div>
+                <h3 style={styles.statTitle}>स्टाफ संदिग्ध मामले</h3>
+                <p style={{...styles.statNumber, ...styles.statNumberUnhealthy}}>{staffStats.suspiciousStaff}</p>
+                <span style={styles.statIcon}>⚠</span>
               </div>
             </div>
 
@@ -740,6 +898,18 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
 
         {/* Reports Table */}
         <div style={styles.tableContainer}>
+          <div style={{
+            background: 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)',
+            color: 'white',
+            padding: '1rem 1.5rem',
+            borderRadius: '12px 12px 0 0',
+            marginBottom: '0'
+          }}>
+            <h3 style={{margin: 0, fontSize: '1.2rem'}}>बच्चों की जांच रिपोर्ट</h3>
+            <p style={{margin: '0.5rem 0 0 0', opacity: 0.9, fontSize: '0.9rem'}}>
+              कुल बच्चे: {totalCount} | सामान्य: {normalCount} | संदिग्ध: {suspiciousCount}
+            </p>
+          </div>
           <table style={styles.reportsTable}>
             <thead>
               <tr>
@@ -877,6 +1047,175 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
             </div>
           </div>
         )}
+
+        {/* Staff Reports Table */}
+        <div style={styles.tableContainer}>
+          <div style={{
+            background: 'linear-gradient(135deg, #6078a4 0%, #2f4b80 50%, #0b0f2b 100%)',
+            color: 'white',
+            padding: '1rem 1.5rem',
+            borderRadius: '12px 12px 0 0',
+            marginBottom: '0'
+          }}>
+            <h3 style={{margin: 0, fontSize: '1.2rem'}}>स्टाफ की रिपोर्ट (शिक्षक और कर्मचारी)</h3>
+            <p style={{margin: '0.5rem 0 0 0', opacity: 0.9, fontSize: '0.9rem'}}>
+              कुल स्टाफ: {staffStats.totalStaff} | शिक्षक: {staffStats.totalTeachers} | कर्मचारी: {staffStats.totalEmployees}
+            </p>
+          </div>
+          
+          {isStaffLoading ? (
+            <div style={{...styles.loadingContainer, margin: 0, borderRadius: '0 0 12px 12px'}}>
+              <div style={styles.loadingSpinner}>
+                <h3 style={styles.loadingTitle}>स्टाफ रिपोर्ट लोड हो रही है...</h3>
+                <p style={styles.loadingText}>कृपया प्रतीक्षा करें</p>
+              </div>
+            </div>
+          ) : (
+            <table style={styles.reportsTable}>
+              <thead>
+                <tr>
+                  <th style={styles.tableHeader}>नाम और विवरण</th>
+                  <th style={styles.tableHeader}>श्रेणी</th>
+                  <th style={styles.tableHeader}>स्कूल</th>
+                  <th style={styles.tableHeader}>जांच की तारीख</th>
+                  <th style={styles.tableHeader}>चिकित्सक</th>
+                  <th style={styles.tableHeader}>हृदय स्थिति</th>
+                  <th style={styles.tableHeader}>कार्रवाई</th>
+                </tr>
+              </thead>
+              <tbody>
+                {staffReports.map(staff => (
+                  <tr 
+                    key={`${staff.staffType}-${staff.id}`} 
+                    style={styles.tableRow}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f8f9fa'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }}
+                  >
+                    <td style={styles.tableCell}>
+                      <div style={styles.childInfo}>
+                        <div style={styles.childAvatar}>
+                          {staff.gender === 'पुरुष' ? '♂' : '♀'}
+                        </div>
+                        <div>
+                          <div style={styles.childName}>{staff.name}</div>
+                          <div style={styles.childDetails}>
+                            {staff.age} वर्ष, {staff.gender}
+                          </div>
+                          <div style={styles.childContact}>{staff.mobileNo}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={styles.tableCell}>
+                      <span style={{
+                        padding: '0.25rem 0.75rem',
+                        borderRadius: '15px',
+                        fontSize: '0.8rem',
+                        fontWeight: 600,
+                        backgroundColor: staff.staffType === 'शिक्षक' ? '#e3f2fd' : '#f3e5f5',
+                        color: staff.staffType === 'शिक्षक' ? '#1976d2' : '#7b1fa2'
+                      }}>
+                        {staff.staffType}
+                      </span>
+                    </td>
+                    <td style={styles.tableCell}>{staff.schoolName}</td>
+                    <td style={styles.tableCell}>{staff.screeningDate}</td>
+                    <td style={styles.tableCell}>{staff.doctorName}</td>
+                    <td style={styles.tableCell}>
+                      <span style={{
+                        ...styles.statusBadge,
+                        ...(staff.heartStatus === 'संदेह नहीं' ? styles.statusHealthy : styles.statusSuspicious)
+                      }}>
+                        {staff.heartStatus}
+                      </span>
+                    </td>
+                    <td style={styles.tableCell}>
+                      <div style={styles.actionButtons}>
+                        <button 
+                          style={{...styles.btnSmall, ...styles.btnSmallPrimary}}
+                          onClick={() => handleViewStaffDetails(staff)}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = '#2f4b80'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#6078a4'
+                          }}
+                        >
+                          विस्तार देखें
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        {/* Staff Pagination */}
+        {staffPagination.totalPages > 1 && (
+          <div style={styles.pagination}>
+            <button 
+              style={{
+                ...styles.paginationBtn,
+                ...(staffCurrentPage === 1 ? styles.paginationBtnDisabled : {})
+              }}
+              onClick={() => setStaffCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={staffCurrentPage === 1}
+              onMouseEnter={(e) => {
+                if (staffCurrentPage !== 1) {
+                  Object.assign(e.currentTarget.style, styles.paginationBtnHover)
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (staffCurrentPage !== 1) {
+                  e.currentTarget.style.background = 'white'
+                  e.currentTarget.style.color = '#6078a4'
+                }
+              }}
+            >
+              ← पिछला
+            </button>
+            
+            <div style={styles.paginationInfo}>
+              पृष्ठ {staffPagination.currentPage} / {staffPagination.totalPages} (कुल {staffPagination.totalRecords} स्टाफ रिपोर्ट)
+            </div>
+            
+            <button 
+              style={{
+                ...styles.paginationBtn,
+                ...(staffCurrentPage === staffPagination.totalPages ? styles.paginationBtnDisabled : {})
+              }}
+              onClick={() => setStaffCurrentPage(prev => Math.min(prev + 1, staffPagination.totalPages))}
+              disabled={staffCurrentPage === staffPagination.totalPages}
+              onMouseEnter={(e) => {
+                if (staffCurrentPage !== staffPagination.totalPages) {
+                  Object.assign(e.currentTarget.style, styles.paginationBtnHover)
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (staffCurrentPage !== staffPagination.totalPages) {
+                  e.currentTarget.style.background = 'white'
+                  e.currentTarget.style.color = '#6078a4'
+                }
+              }}
+            >
+              अगला →
+            </button>
+          </div>
+        )}
+
+        {staffReports.length === 0 && !isStaffLoading && (
+          <div style={styles.noResults}>
+            <div style={styles.emptyState}>
+              <h3 style={styles.emptyStateTitle}>कोई स्टाफ रिपोर्ट उपलब्ध नहीं है</h3>
+              <p style={styles.emptyStateText}>अभी तक कोई शिक्षक या कर्मचारी की रिपोर्ट नहीं मिली है।</p>
+            </div>
+          </div>
+        )}
           </>
         )}
       </div>
@@ -1003,8 +1342,153 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
           </div>
         </div>
       )}
+
+      {/* Staff Detail Modal */}
+      {selectedStaff && (
+        <div style={styles.modalOverlay} onClick={() => setSelectedStaff(null)}>
+          <div style={{...styles.modalContent, ...styles.largeModal}} onClick={(e) => e.stopPropagation()}>
+            <div style={styles.modalHeader}>
+              <h3 style={styles.modalTitle}>{selectedStaff.staffType} की विस्तृत रिपोर्ट</h3>
+              <button 
+                style={styles.closeBtn} 
+                onClick={() => setSelectedStaff(null)}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, styles.closeBtnHover)
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'none'
+                  e.currentTarget.style.color = '#6c757d'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={styles.modalBody}>
+              <div style={styles.childDetailGrid}>
+                <div style={styles.detailSection}>
+                  <h4 style={styles.detailSectionTitle}>व्यक्तिगत जानकारी</h4>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>नाम:</span>
+                    <span style={styles.detailValue}>{selectedStaff.name}</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>श्रेणी:</span>
+                    <span style={{
+                      ...styles.detailValue,
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '15px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      backgroundColor: selectedStaff.staffType === 'शिक्षक' ? '#e3f2fd' : '#f3e5f5',
+                      color: selectedStaff.staffType === 'शिक्षक' ? '#1976d2' : '#7b1fa2'
+                    }}>
+                      {selectedStaff.staffType}
+                    </span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>उम्र:</span>
+                    <span style={styles.detailValue}>{selectedStaff.age} वर्ष</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>लिंग:</span>
+                    <span style={styles.detailValue}>{selectedStaff.gender}</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>मोबाइल नंबर:</span>
+                    <span style={styles.detailValue}>{selectedStaff.mobileNo}</span>
+                  </div>
+                  <div style={{...styles.detailRow, ...styles.detailRowLast}}>
+                    <span style={styles.detailLabel}>स्कूल:</span>
+                    <span style={styles.detailValue}>{selectedStaff.schoolName}</span>
+                  </div>
+                </div>
+
+                <div style={styles.detailSection}>
+                  <h4 style={styles.detailSectionTitle}>दस्तावेज स्थिति</h4>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>आधार कार्ड:</span>
+                    <span style={{
+                      ...styles.detailValue,
+                      ...(selectedStaff.haveAadhar === 'yes' ? styles.valueAvailable : styles.valueNotAvailable)
+                    }}>
+                      {selectedStaff.haveAadhar === 'yes' ? 'हां' : 'नहीं'}
+                    </span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>श्रमिक कार्ड:</span>
+                    <span style={{
+                      ...styles.detailValue,
+                      ...(selectedStaff.haveShramik === 'yes' ? styles.valueAvailable : styles.valueNotAvailable)
+                    }}>
+                      {selectedStaff.haveShramik === 'yes' ? 'हां' : 'नहीं'}
+                    </span>
+                  </div>
+                  {selectedStaff.aadharPhoto && (
+                    <div style={styles.detailRow}>
+                      <span style={styles.detailLabel}>आधार फोटो:</span>
+                      <span style={styles.detailValue}>उपलब्ध</span>
+                    </div>
+                  )}
+                  {selectedStaff.shramikPhoto && (
+                    <div style={{...styles.detailRow, ...styles.detailRowLast}}>
+                      <span style={styles.detailLabel}>श्रमिक फोटो:</span>
+                      <span style={styles.detailValue}>उपलब्ध</span>
+                    </div>
+                  )}
+                </div>
+
+                <div style={styles.detailSection}>
+                  <h4 style={styles.detailSectionTitle}>चिकित्सा जानकारी</h4>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>चिकित्सक:</span>
+                    <span style={styles.detailValue}>{selectedStaff.doctorName}</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>अस्पताल:</span>
+                    <span style={styles.detailValue}>{selectedStaff.hospitalName}</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>जांच की तारीख:</span>
+                    <span style={styles.detailValue}>{selectedStaff.screeningDate}</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>हृदय स्थिति:</span>
+                    <span style={{
+                      ...styles.detailValue,
+                      ...(selectedStaff.heartStatus === 'संदेह नहीं' ? styles.valueAvailable : styles.valueNotAvailable)
+                    }}>
+                      {selectedStaff.heartStatus}
+                    </span>
+                  </div>
+                  {selectedStaff.notes && (
+                    <div style={{...styles.detailRow, ...styles.detailRowFullWidth, ...styles.detailRowLast}}>
+                      <span style={styles.detailLabel}>टिप्पणी:</span>
+                      <span style={{...styles.detailValue, ...styles.detailValueFullWidth}}>{selectedStaff.notes}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div style={styles.modalFooter}>
+              <button 
+                style={styles.btnSecondary} 
+                onClick={() => setSelectedStaff(null)}
+                onMouseEnter={(e) => {
+                  Object.assign(e.currentTarget.style, styles.btnSecondaryHover)
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'white'
+                  e.currentTarget.style.color = '#6078a4'
+                }}
+              >
+                बंद करें
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-export default ChildrenReports
+export default ChildrenStaffReports

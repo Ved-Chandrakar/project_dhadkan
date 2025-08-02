@@ -840,7 +840,13 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
             alt="धड़कन लोगो" 
             style={styles.sidebarLogo}
           />
-          <p style={styles.sidebarHeaderP}></p>
+          <p style={{
+            ...styles.sidebarHeaderP,
+            fontSize: '0.9rem',
+            color: 'rgba(255,255,255,0.9)',
+            fontWeight: 500,
+            marginTop: '0.5rem'
+          }}>चिकित्सक पैनल</p>
         </div>
         
         <nav>
@@ -879,6 +885,17 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
         </nav>
 
         <div style={styles.sidebarFooter}>
+          <div style={{
+            textAlign: 'center' as const,
+            padding: '0.5rem',
+            marginBottom: '1rem',
+            fontSize: '0.75rem',
+            color: 'rgba(255,255,255,0.6)',
+            borderBottom: '1px solid rgba(255,255,255,0.1)',
+            paddingBottom: '1rem'
+          }}>
+            Version: 1.0.0
+          </div>
           <div style={styles.userProfile}>
             <p style={styles.userName}>🩺{user.name}</p>
             <p style={styles.userEmail}>{user.email}</p>
