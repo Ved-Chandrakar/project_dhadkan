@@ -22,6 +22,10 @@ interface DashboardStats {
   positiveCases: number
   reportsThisWeek?: number
   pendingReports?: number
+  totalTeachers?: number
+  totalEmployees?: number
+  totalStaff?: number
+  staffPositiveCases?: number
 }
 
 interface Child {
@@ -39,6 +43,21 @@ interface Child {
   createdat: string
 }
 
+interface Staff {
+  id: number
+  name: string
+  age: number
+  gender: string
+  mobileNo: string
+  schoolName: string
+  haveAadhar: string
+  haveShramik: string
+  heartStatus: string
+  notes: string
+  createdat: string
+  category: 'शिक्षक' | 'कर्मचारी'
+}
+
 const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: DoctorDashboardProps) => {
   const [activeTab, setActiveTab] = useState(initialActiveTab || 'dashboard')
   const [stats, setStats] = useState<DashboardStats>({
@@ -46,10 +65,16 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
     totalChildrenScreened: 0,
     positiveCases: 0,
     reportsThisWeek: 0,
-    pendingReports: 0
+    pendingReports: 0,
+    totalTeachers: 0,
+    totalEmployees: 0,
+    totalStaff: 0,
+    staffPositiveCases: 0
   })
   const [childrenList, setChildrenList] = useState<Child[]>([])
+  const [staffList, setStaffList] = useState<Staff[]>([])
   const [loading, setLoading] = useState(false)
+  const [staffLoading, setStaffLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   // // Add CSS animations and scrollbar styles
@@ -441,7 +466,7 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
   ]
 
   // API Base URL - adjust this according to your setup
-  const API_BASE_URL = `${serverUrl}doctor_api.php`
+  const API_BASE_URL = `${serverUrl}dhadkan_doctor_api.php`
 
   // Fetch doctor statistics
   const fetchDoctorStats = async () => {
@@ -489,12 +514,35 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
     }
   }
 
+  // Fetch staff list (teachers and employees)
+  const fetchStaffList = async () => {
+    try {
+      setStaffLoading(true)
+      const response = await fetch(`${API_BASE_URL}?action=get_teacher_employee_list&doctor_id=${user.id}&limit=50`)
+      const data = await response.json()
+      
+      console.log('Staff List Response:', data) // Debug log
+      
+      if (data.success) {
+        setStaffList(data.data.staff || [])
+        console.log('Staff List set:', data.data.staff) // Debug log
+      } else {
+        console.error('Failed to fetch staff list:', data.message)
+      }
+    } catch (error) {
+      console.error('Error fetching staff list:', error)
+    } finally {
+      setStaffLoading(false)
+    }
+  }
+
   // Load data when component mounts or when switching to dashboard
   useEffect(() => {
     if (activeTab === 'dashboard') {
       console.log('Loading dashboard data for user:', user) // Debug log
       fetchDoctorStats()
       fetchChildrenList()
+      fetchStaffList()
     }
   }, [activeTab, user.id])
 
@@ -502,6 +550,7 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
   const refreshData = () => {
     fetchDoctorStats()
     fetchChildrenList()
+    fetchStaffList()
   }
 
   const renderDashboard = () => (
@@ -530,19 +579,35 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
         </div>
         <div style={styles.statCard}>
           <div style={styles.statCardBefore}></div>
-          <h4 style={styles.statCardH4}>संदिग्ध मामले</h4>
+          <h4 style={styles.statCardH4}>बच्चों में संदिग्ध मामले</h4>
           <p style={styles.statNumber}>
             {loading ? '...' : stats.positiveCases}
           </p>
           <span style={styles.statIcon}>⚠</span>
         </div>
-        <div style={styles.statCard}>
+        {/* <div style={styles.statCard}>
           <div style={styles.statCardBefore}></div>
           <h4 style={styles.statCardH4}>आज की जांच</h4>
           <p style={styles.statNumber}>
             {loading ? '...' : stats.todayScreenings}
           </p>
           <span style={styles.statIcon}>📅</span>
+        </div> */}
+        <div style={styles.statCard}>
+          <div style={styles.statCardBefore}></div>
+          <h4 style={styles.statCardH4}>कुल स्टाफ (शिक्षक + कर्मचारी)</h4>
+          <p style={styles.statNumber}>
+            {loading ? '...' : (stats.totalStaff || 0)}
+          </p>
+          <span style={styles.statIcon}>👥</span>
+        </div>
+        <div style={styles.statCard}>
+          <div style={styles.statCardBefore}></div>
+          <h4 style={styles.statCardH4}>स्टाफ संदिग्ध मामले</h4>
+          <p style={styles.statNumber}>
+            {loading ? '...' : (stats.staffPositiveCases || 0)}
+          </p>
+          <span style={styles.statIcon}>⚠</span>
         </div>
       </div>
 
@@ -634,6 +699,111 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
             ) : (
               <div style={styles.noDataMessage}>
                 <p style={{...styles.noDataMessageP, ...styles.noDataMessagePFirst}}>अभी तक कोई बच्चों की जांच नहीं की गई है।</p>
+                <p style={styles.noDataMessageP}>नई रिपोर्ट जोड़ने के लिए "नई रिपोर्ट" पर क्लिक करें।</p>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Staff Table */}
+        <div style={styles.overviewCard}>
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+            <h4 style={styles.overviewCardH4}>स्टाफ की जांच (शिक्षक और कर्मचारी)</h4>
+            <button 
+              onClick={refreshData} 
+              style={{
+                ...styles.btnSecondary,
+                ...(staffLoading ? {opacity: 0.6, cursor: 'not-allowed'} : {})
+              }}
+              disabled={staffLoading}
+            >
+              {staffLoading ? 'लोड हो रहा है...' : 'रिफ्रेश करें'}
+            </button>
+          </div>
+          <div style={styles.childrenTableContainer} className="children-table-container">
+            {staffLoading ? (
+              <div style={styles.loadingMessage}>
+                <p>स्टाफ डेटा लोड हो रहा है...</p>
+              </div>
+            ) : staffList.length > 0 ? (
+              <>
+                <div style={{
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f8f9fa',
+                  padding: '0.5rem',
+                  borderBottom: '1px solid #e9ecef',
+                  fontSize: '0.85rem',
+                  color: '#6c757d',
+                  zIndex: 5
+                }}>
+                  कुल {staffList.length} स्टाफ सदस्यों की रिपोर्ट्स
+                </div>
+                <table style={styles.childrenTable}>
+                  <thead>
+                    <tr>
+                      <th style={{...styles.childrenTableTh, width: '60px'}}>क्रम</th>
+                      <th style={{...styles.childrenTableTh, width: '150px'}}>नाम</th>
+                      <th style={{...styles.childrenTableTh, width: '80px'}}>उम्र</th>
+                      <th style={{...styles.childrenTableTh, width: '80px'}}>लिंग</th>
+                      <th style={{...styles.childrenTableTh, width: '100px'}}>श्रेणी</th>
+                      <th style={{...styles.childrenTableTh, width: '120px'}}>मोबाइल</th>
+                      <th style={{...styles.childrenTableTh, width: '150px'}}>स्कूल</th>
+                      <th style={{...styles.childrenTableTh, width: '120px'}}>हृदय स्थिति</th>
+                      <th style={{...styles.childrenTableTh, width: '120px'}}>जांच तिथि</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {staffList.map((staff, index) => (
+                      <tr 
+                        key={staff.id} 
+                        style={{
+                          ...styles.childrenTableTr,
+                          ...(index % 2 === 1 ? styles.childrenTableTrEven : {})
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#e8f5e8'
+                          e.currentTarget.style.cursor = 'pointer'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = index % 2 === 1 ? '#f8f9fa' : 'transparent'
+                        }}
+                      >
+                        <td style={{...styles.childrenTableTd, textAlign: 'center'}}>{index + 1}</td>
+                        <td style={{...styles.childrenTableTd, ...styles.childNameCell}} title={staff.name}>{staff.name}</td>
+                        <td style={{...styles.childrenTableTd, textAlign: 'center'}}>{staff.age || 0} वर्ष</td>
+                        <td style={{...styles.childrenTableTd, textAlign: 'center'}}>{staff.gender}</td>
+                        <td style={{...styles.childrenTableTd, textAlign: 'center'}}>
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '12px',
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold',
+                            backgroundColor: staff.category === 'शिक्षक' ? '#e3f2fd' : '#f3e5f5',
+                            color: staff.category === 'शिक्षक' ? '#1976d2' : '#7b1fa2'
+                          }}>
+                            {staff.category}
+                          </span>
+                        </td>
+                        <td style={styles.childrenTableTd}>{staff.mobileNo}</td>
+                        <td style={styles.childrenTableTd} title={staff.schoolName}>{staff.schoolName}</td>
+                        <td style={{...styles.childrenTableTd, textAlign: 'center'}}>
+                          <span style={{
+                            ...styles.statusBadge,
+                            ...(staff.heartStatus === 'संदिग्ध' ? styles.statusUnhealthy : styles.statusHealthy)
+                          }}>
+                            {staff.heartStatus}
+                          </span>
+                        </td>
+                        <td style={{...styles.childrenTableTd, textAlign: 'center'}}>{new Date(staff.createdat).toLocaleDateString('hi-IN')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            ) : (
+              <div style={styles.noDataMessage}>
+                <p style={{...styles.noDataMessageP, ...styles.noDataMessagePFirst}}>अभी तक कोई स्टाफ की जांच नहीं की गई है।</p>
                 <p style={styles.noDataMessageP}>नई रिपोर्ट जोड़ने के लिए "नई रिपोर्ट" पर क्लिक करें।</p>
               </div>
             )}

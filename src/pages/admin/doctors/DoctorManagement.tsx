@@ -652,7 +652,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const response = await fetch(`${serverUrl}doctor_management.php`, {
+        const response = await fetch(`${serverUrl}dhadkan_doctor_management.php`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -724,7 +724,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
   const handleDeleteDoctor = async (doctor: Doctor) => {
     if (window.confirm(`क्या आप वाकई ${doctor.name || doctor.doctorName} को हटाना चाहते हैं?`)) {
       try {
-        const response = await fetch(`${serverUrl}doctor_management.php?action=delete&id=${doctor.id}`, {
+        const response = await fetch(`${serverUrl}dhadkan_doctor_management.php?action=delete&id=${doctor.id}`, {
           method: 'DELETE'
         })
 
@@ -734,7 +734,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
           alert(`${doctor.name || doctor.doctorName} को सफलतापूर्वक हटा दिया गया है।`)
           
           // Refresh doctors list
-          const fetchResponse = await fetch(`${serverUrl}doctor_management.php`)
+          const fetchResponse = await fetch(`${serverUrl}dhadkan_doctor_management.php`)
           const fetchResult = await fetchResponse.json()
           if (fetchResult.success) {
             setDoctors(fetchResult.data || [])
@@ -789,8 +789,8 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
       
       // Use different endpoints for add and update operations
       const url = selectedDoctor 
-        ? `${serverUrl}doctor_management.php?action=update`
-        : `${serverUrl}add_doctor.php`
+        ? `${serverUrl}dhadkan_doctor_management.php?action=update`
+        : `${serverUrl}dhadkan_add_doctor.php`
 
       const method = 'POST'
       const payload = selectedDoctor 
@@ -824,7 +824,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
         })
         
         // Refresh doctors list
-        const fetchResponse = await fetch(`${serverUrl}doctor_management.php`)
+        const fetchResponse = await fetch(`${serverUrl}dhadkan_doctor_management.php`)
         const fetchResult = await fetchResponse.json()
         if (fetchResult.success) {
           setDoctors(fetchResult.data || [])

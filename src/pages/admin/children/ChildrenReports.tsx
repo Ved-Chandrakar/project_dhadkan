@@ -542,7 +542,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
         setIsLoading(true)
         
         // Fetch reports
-        const reportsResponse = await fetch(`${serverUrl}children_reports.php?action=getReports&page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
+        const reportsResponse = await fetch(`${serverUrl}dhadkan_children_reports.php?action=getReports&page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -565,7 +565,7 @@ const ChildrenReports = ({ user, onBack }: ChildrenReportsProps) => {
         }
 
         // Fetch stats
-        const statsResponse = await fetch(`${serverUrl}children_reports.php?action=getStats`, {
+        const statsResponse = await fetch(`${serverUrl}dhadkan_children_reports.php?action=getStats`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

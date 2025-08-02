@@ -573,11 +573,25 @@ const AddReportForm = ({ user }: AddReportFormProps) => {
 
     try {
       // Convert files to base64 if they exist
-      const aadharPhotoBase64 = formData.aadharPhoto ? await fileToBase64(formData.aadharPhoto) : null
-      const shramikPhotoBase64 = formData.shramikPhoto ? await fileToBase64(formData.shramikPhoto) : null
+      let aadharPhotoBase64 = null
+      let shramikPhotoBase64 = null
+      
+      try {
+        if (formData.aadharPhoto && formData.aadharPhoto instanceof File) {
+          aadharPhotoBase64 = await fileToBase64(formData.aadharPhoto)
+        }
+        if (formData.shramikPhoto && formData.shramikPhoto instanceof File) {
+          shramikPhotoBase64 = await fileToBase64(formData.shramikPhoto)
+        }
+      } catch (fileError) {
+        console.error('Error converting files to base64:', fileError)
+        throw new Error('फाइल अपलोड करने में त्रुटि हुई। कृपया दोबारा कोशिश करें।')
+      }
       
       // Create JSON payload based on selected category
       const isChild = selectedCategory === 'बच्चे'
+      const isEmployee = selectedCategory === 'कर्मचारी'
+      
       const jsonData = {
         name: formData.name,
         age: formData.age,
@@ -590,25 +604,31 @@ const AddReportForm = ({ user }: AddReportFormProps) => {
         heartStatus: formData.heartStatus,
         notes: formData.notes,
         dr_id: user.id,
-        aadharPhoto: aadharPhotoBase64 ? {
+        // Add category parameter for backend
+        category: isEmployee ? 'employee' : 'teacher', // employee or teacher (children go to different endpoint)
+        aadharPhoto: aadharPhotoBase64 && formData.aadharPhoto ? {
           data: aadharPhotoBase64,
-          name: formData.aadharPhoto?.name || '',
-          type: formData.aadharPhoto?.type || ''
+          name: formData.aadharPhoto.name || 'aadhar.jpg',
+          type: formData.aadharPhoto.type || 'image/jpeg'
         } : null,
-        shramikPhoto: shramikPhotoBase64 ? {
+        shramikPhoto: shramikPhotoBase64 && formData.shramikPhoto ? {
           data: shramikPhotoBase64,
-          name: formData.shramikPhoto?.name || '',
-          type: formData.shramikPhoto?.type || ''
+          name: formData.shramikPhoto.name || 'shramik.jpg',
+          type: formData.shramikPhoto.type || 'image/jpeg'
         } : null
       }
 
       // Use different API endpoints based on category
       const apiUrl = isChild 
-        ? `${serverUrl}add_child_report.php`
-        : `${serverUrl}add_teacher_report.php` // You'll need to create this endpoint
+        ? `${serverUrl}dhadkan_add_child_report.php`
+        : `${serverUrl}dhadkan_add_teacher_emp_report.php` // This handles both teacher and employee
       
       console.log('Submitting to:', apiUrl)
-      console.log('JSON Data:', { ...jsonData, aadharPhoto: jsonData.aadharPhoto ? 'FILE_DATA' : null, shramikPhoto: jsonData.shramikPhoto ? 'FILE_DATA' : null })
+      console.log('JSON Data:', { 
+        ...jsonData, 
+        aadharPhoto: jsonData.aadharPhoto ? 'FILE_DATA_PRESENT' : null, 
+        shramikPhoto: jsonData.shramikPhoto ? 'FILE_DATA_PRESENT' : null 
+      })
       
       // Submit to appropriate endpoint
       const response = await fetch(apiUrl, {
@@ -641,8 +661,19 @@ const AddReportForm = ({ user }: AddReportFormProps) => {
       }
       
       if (result.success) {
-        const entityType = isChild ? 'बच्चे' : 'शिक्षक'
-        const entityData = isChild ? result.data.child : result.data.teacher
+        let entityType, entityData
+        
+        if (isChild) {
+          entityType = 'बच्चे'
+          entityData = result.data.child
+        } else if (isEmployee) {
+          entityType = 'कर्मचारी'
+          entityData = result.data.employee
+        } else {
+          entityType = 'शिक्षक'
+          entityData = result.data.teacher
+        }
+        
         alert(`${entityType} की रिपोर्ट सफलतापूर्वक जमा हो गई!\n\n${entityType} का नाम: ${entityData.name}\nजांच ID: ${entityData.id}`)
         
         // Reset form after successful submission
@@ -767,7 +798,7 @@ const AddReportForm = ({ user }: AddReportFormProps) => {
   const renderStep2 = () => (
     <div style={styles.formStep}>
       <h3 style={{...styles.formStepH3, position: 'relative'}}>
-        शिक्षा और दस्तावेज़ जानकारी
+        विद्यालय और दस्तावेज़ जानकारी
         <div style={styles.formStepH3After}></div>
       </h3>
       
@@ -1050,7 +1081,7 @@ const AddReportForm = ({ user }: AddReportFormProps) => {
               ...styles.stepLabel,
               ...(currentStep >= 2 ? styles.stepLabelActive : {}),
               ...(currentStep > 2 ? styles.stepLabelCompleted : {})
-            }}>शिक्षा और दस्तावेज़</div>
+            }}>विद्यालय और दस्तावेज़ जानकारी</div>
           </div>
           <div style={{
             ...styles.step,

@@ -237,7 +237,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
 
     try {
       // API call to login.php
-      const response = await fetch(`${serverUrl}login.php`, {
+      const response = await fetch(`${serverUrl}dhadkan_login.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -249,14 +249,10 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
         })
       })
 
-      // Check if response is ok
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
+      // Parse response regardless of status
       const data = await response.json()
 
-      if (data.success) {
+      if (response.ok && data.success) {
         // Store token in localStorage
         localStorage.setItem('authToken', data.token)
         localStorage.setItem('userData', JSON.stringify(data.user))
@@ -271,6 +267,7 @@ const LoginPage = ({ onLogin }: LoginPageProps) => {
         
         onLogin(userData)
       } else {
+        // Server responded but with error (401, 400, etc.)
         setError(data.message || 'लॉगिन में त्रुटि हुई')
       }
     } catch (err) {

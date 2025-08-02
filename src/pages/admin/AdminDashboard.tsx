@@ -503,7 +503,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       setIsLoading(true)
       setError(null)
       
-      const response = await fetch(`${serverUrl}admin_dashboard.php`, {
+      const response = await fetch(`${serverUrl}dhadkan_admin_dashboard.php`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

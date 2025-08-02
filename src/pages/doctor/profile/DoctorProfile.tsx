@@ -249,7 +249,7 @@ const DoctorProfile: React.FC<DoctorProfileProps> = ({ user }) => {
       setLoading(true)
       setError(null)
 
-      const response = await fetch(`${serverUrl}get_doctor_profile.php?doctor_id=${user.id}`)
+      const response = await fetch(`${serverUrl}dhadkan_get_doctor_profile.php?doctor_id=${user.id}`)
 
       if (!response.ok) {
         throw new Error(`HTTP Error: ${response.status}`)
