@@ -118,7 +118,9 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
       color: 'white',
       textDecoration: 'none',
       transition: 'all 0.3s ease',
-      borderLeft: '4px solid transparent',
+      borderLeftWidth: '4px',
+      borderLeftStyle: 'solid' as const,
+      borderLeftColor: 'transparent',
       cursor: 'pointer'
     },
     sidebarNavAHover: {
@@ -658,7 +660,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
           </div>
           <div style={styles.statCard}>
             <div style={styles.statCardBefore}></div>
-            <h4 style={styles.statCardH4}>संदिग्ध मामले</h4>
+            <h4 style={styles.statCardH4}>बच्चों में संदिग्ध मामले</h4>
             <p style={styles.statNumber}>{dashboardStats.positiveCases}</p>
             <small style={styles.statSubtitle}>{dashboardStats.suspiciousPercentage.toFixed(1)}% कुल जांच का</small>
           </div>
@@ -755,7 +757,7 @@ const AdminDashboard = ({ user, onLogout }: AdminDashboardProps) => {
             {children.length > 0 ? (
               <div style={styles.healthStats}>
                 <div style={styles.healthStat}>
-                  <span style={styles.healthLabel}>स्वस्थ बच्चे</span>
+                  <span style={styles.healthLabel}>स्वस्थ मामले</span>
                   <span style={{...styles.healthValue, ...styles.healthValueHealthy}}>{healthyChildren}</span>
                 </div>
                 <div style={styles.healthStat}>

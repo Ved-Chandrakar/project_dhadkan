@@ -874,7 +874,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
                 <h3 style={styles.statTitle}>कुल चिकित्सक</h3>
                 <p style={styles.statNumber}>{doctors.length}</p>
               </div>
-              <span style={styles.statIcon}>👩‍⚕️</span>
+              <span style={styles.statIcon}>⚕️</span>
             </div>
             {/* <div 
               style={styles.statCard}

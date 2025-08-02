@@ -164,7 +164,9 @@ const DoctorDashboard = ({ user, onLogout, activeTab: initialActiveTab }: Doctor
       color: 'white',
       textDecoration: 'none',
       transition: 'all 0.3s ease',
-      borderLeft: '4px solid transparent',
+      borderLeftWidth: '4px',
+      borderLeftStyle: 'solid' as const,
+      borderLeftColor: 'transparent',
       cursor: 'pointer'
     },
     sidebarNavAHover: {
