@@ -523,6 +523,7 @@ const styles = {
 
 const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
   const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
   const [filterDoctor, setFilterDoctor] = useState('')
   const [selectedChild, setSelectedChild] = useState<ChildReport | null>(null)
@@ -559,6 +560,9 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isStaffLoading, setIsStaffLoading] = useState(true)
+  const [searchInputFocused, setSearchInputFocused] = useState(false)
+  const [statusSelectFocused, setStatusSelectFocused] = useState(false)
+  const [doctorSelectFocused, setDoctorSelectFocused] = useState(false)
   const itemsPerPage = 10
 
   // ESC key functionality for going back
@@ -573,6 +577,15 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
     return () => window.removeEventListener('keydown', handleKeyPress)
   }, [onBack, selectedChild])
 
+  // Debounce search term to avoid frequent API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm)
+    }, 500) // 500ms delay
+
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
   // Fetch reports data and stats
   useEffect(() => {
     const fetchData = async () => {
@@ -580,7 +593,7 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
         setIsLoading(true)
         
         // Fetch reports
-        const reportsResponse = await fetch(`${serverUrl}dhadkan_children_staff_reports.php?action=getReports&page=${currentPage}&limit=${itemsPerPage}&search=${searchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
+        const reportsResponse = await fetch(`${serverUrl}dhadkan_children_staff_reports.php?action=getReports&page=${currentPage}&limit=${itemsPerPage}&search=${debouncedSearchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -636,7 +649,7 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
     }
 
     fetchData()
-  }, [currentPage, searchTerm, filterStatus, filterDoctor])
+  }, [currentPage, debouncedSearchTerm, filterStatus, filterDoctor])
 
   // Fetch staff reports data
   useEffect(() => {
@@ -645,7 +658,7 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
         setIsStaffLoading(true)
         
         // Fetch staff reports
-        const staffResponse = await fetch(`${serverUrl}dhadkan_children_staff_reports.php?action=getStaffReports&page=${staffCurrentPage}&limit=${itemsPerPage}&search=${searchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
+        const staffResponse = await fetch(`${serverUrl}dhadkan_children_staff_reports.php?action=getStaffReports&page=${staffCurrentPage}&limit=${itemsPerPage}&search=${debouncedSearchTerm}&heartStatus=${filterStatus}&doctorId=${filterDoctor}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -700,7 +713,7 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
     }
 
     fetchStaffData()
-  }, [staffCurrentPage, searchTerm, filterStatus, filterDoctor])
+  }, [staffCurrentPage, debouncedSearchTerm, filterStatus, filterDoctor])
 
   const healthStatuses = ['संदेह नहीं', 'संदिग्ध']
 
@@ -852,11 +865,12 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
               placeholder="बच्चे का नाम, पिता का नाम या स्कूल खोजें..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={styles.searchInput}
-              onFocus={(e) => Object.assign(e.target.style, styles.searchInputFocus)}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e9ecef'
+              style={{
+                ...styles.searchInput,
+                borderColor: searchInputFocused ? '#6078a4' : '#e9ecef'
               }}
+              onFocus={() => setSearchInputFocused(true)}
+              onBlur={() => setSearchInputFocused(false)}
             />
             <span style={styles.searchIcon}>⌕</span>
           </div>
@@ -865,11 +879,12 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              style={styles.filterSelect}
-              onFocus={(e) => Object.assign(e.target.style, styles.filterSelectFocus)}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e9ecef'
+              style={{
+                ...styles.filterSelect,
+                borderColor: statusSelectFocused ? '#6078a4' : '#e9ecef'
               }}
+              onFocus={() => setStatusSelectFocused(true)}
+              onBlur={() => setStatusSelectFocused(false)}
             >
               <option value="">सभी स्थितियां</option>
               {healthStatuses.map(status => (
@@ -880,11 +895,12 @@ const ChildrenStaffReports = ({ user, onBack }: ChildrenReportsProps) => {
             <select
               value={filterDoctor}
               onChange={(e) => setFilterDoctor(e.target.value)}
-              style={styles.filterSelect}
-              onFocus={(e) => Object.assign(e.target.style, styles.filterSelectFocus)}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#e9ecef'
+              style={{
+                ...styles.filterSelect,
+                borderColor: doctorSelectFocused ? '#6078a4' : '#e9ecef'
               }}
+              onFocus={() => setDoctorSelectFocused(true)}
+              onBlur={() => setDoctorSelectFocused(false)}
             >
               <option value="">सभी चिकित्सक</option>
               {doctors.map(doctor => (
