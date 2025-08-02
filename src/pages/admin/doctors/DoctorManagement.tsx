@@ -833,7 +833,7 @@ const DoctorManagement = ({ user, onBack }: DoctorManagementProps) => {
         ? `${serverUrl}dhadkan_doctor_management.php?action=update`
         : `${serverUrl}dhadkan_add_doctor.php`
 
-      const method = 'POST'
+      const method = selectedDoctor ? 'PUT' : 'POST'
       const payload = selectedDoctor 
         ? { ...formData, id: selectedDoctor.id }
         : formData
